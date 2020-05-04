@@ -1,0 +1,53 @@
+TODO:
+
+runtime 怎么工作的
+
+自己项目的准备
+
+音视频相关的准备 AVFoudation 剪辑等
+
+iOS的内存管理机制
+
+iOS9-13，每个版本讲一个特性
+
+设计模式的有点 & 缺点
+
+二叉树
+BFS 深度 & 广度
+
+两个队列模拟栈
+
+struct，class，union的区别
+
+MLeaksFinder 源码阅读
+
+fishhook 源码阅读
+
+散列表
+
+私有库
+
+启动优化相关
+
+ios 卡顿 & 掉帧的原理
+
+组件化
+
+自省、反射
+
+开发模式 （观察者、工厂。。。）
+
+架构模式（MVC / MVVM / MVP）
+
+素数 卡特兰数
+
+2-3、排查之MLeaksFinder(强烈推荐)
+MLeaksFinder是微信阅读团队为了简化内存泄漏排查工作，推出的第三方工具，也是我们当前项目中内存泄漏的工具之一。
+
+特点：集成简单，主要检查UI方面（UIView 和 UIViewController）的泄漏。
+
+原理：不入侵开发代码，通过hook 掉 UIViewController 和 UINavigationController 的 pop 跟 dismiss 方法，检查ViewController对象被 pop 或 dismiss 一小段时间后，看看该ViewController对象的 view，view 的 subviews 等等是否还存在。
+
+实现：为基类 NSObject 添加一个方法 -willDealloc 方法，利用weak指针指向自己，并在一小段时间(3秒)后，再次检测该weak指针是否有效，有效则内存泄漏。
+
+集成：通过Cocoapods引入或直接把代码拖进项目，很方便。发生内存泄漏，会弹出警告框，提示发生内存泄漏的位置。

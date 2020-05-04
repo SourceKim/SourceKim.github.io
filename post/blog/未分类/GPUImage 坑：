@@ -1,0 +1,17 @@
+GPUImage 坑：
+
+1. GPUImagePicture 
+
+`- (id)initWithCGImage:(CGImageRef)newImageSource smoothlyScaleOutput:(BOOL)smoothlyScaleOutput;` 不能上传单通道，会重新绘制成 3 通道
+
+2. GPUImagePicture 接口不完善
+
+没有禁用 new 方法，调用时候直接 crash
+
+3. GPUImageRawDataInput 只能上传 UInt8_t
+
+4. 不支持 half float
+
+    opengl 3.1 才支持 opengl es3 用的是 3.0 backbone
+
+5. 主线程检测
