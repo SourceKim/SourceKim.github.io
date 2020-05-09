@@ -37,7 +37,7 @@
 缺点 工厂模式 通过定义工厂类，可以生成对象。
 一般用来生成复杂对象。
 优点： 高拓展性，新建一个方法即可拓展一个新的构造复杂实例的方法
-去除了业务和对象细节的耦合</description></item><item><title/><link>https://www.uiimage.com/post/blog/leetcode/leetcode-3-longest-substring-without-repeating-characters/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/leetcode/leetcode-3-longest-substring-without-repeating-characters/</guid><description/></item><item><title>iOS 的 KVO &amp; KVC 本质</title><link>https://www.uiimage.com/post/blog/ios/kvokvc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/ios/kvokvc/</guid><description>&lt;ul>
+去除了业务和对象细节的耦合</description></item><item><title/><link>https://www.uiimage.com/post/blog/leetcode2/leetcode-3-longest-substring-without-repeating-characters/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/leetcode2/leetcode-3-longest-substring-without-repeating-characters/</guid><description/></item><item><title>iOS 的 KVO &amp; KVC 本质</title><link>https://www.uiimage.com/post/blog/ios/kvokvc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/ios/kvokvc/</guid><description>&lt;ul>
 &lt;li>
 &lt;p>KVO：监听属性的变化&lt;/p>
 &lt;/li>
