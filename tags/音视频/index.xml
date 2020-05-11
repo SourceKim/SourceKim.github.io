@@ -1,4 +1,43 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>音视频 on Kim's Blog</title><link>https://www.uiimage.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/</link><description>Recent content in 音视频 on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>ZH-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Sun, 10 May 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenGL ES in iOS - 3. 画一张图片</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</link><pubDate>Sun, 10 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</guid><description>&lt;p>本篇的最终目的是通过 OpenGL ES 的 &lt;code>glTexImage2D&lt;/code> API，将一张 2D 的 JPG 图片，转换成纹理，然后画到 layer 上。&lt;/p></description></item><item><title>AVFoundation - 1. 基础介绍</title><link>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/avfoundation/</link><pubDate>Thu, 14 Nov 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/avfoundation/</guid><description>&lt;p>AVFoundation 基础介绍，包括 &lt;code>CMTime&lt;/code> 的介绍和常用的一些类介绍&lt;/p></description></item><item><title>OpenGL ES in iOS - 1. 基础概念</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</link><pubDate>Thu, 18 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</guid><description>&lt;p>OpenGL ES 全称 OpenGL for Embedded Systems，是专门为嵌入式设备改良的 开源图形库&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>音视频 on Kim's Blog</title><link>https://www.uiimage.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/</link><description>Recent content in 音视频 on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>ZH-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Mon, 11 May 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenGL ES in iOS - 4. 纹理采样详解</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-4-%E7%BA%B9%E7%90%86%E9%87%87%E6%A0%B7%E8%AF%A6%E8%A7%A3/</link><pubDate>Mon, 11 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-4-%E7%BA%B9%E7%90%86%E9%87%87%E6%A0%B7%E8%AF%A6%E8%A7%A3/</guid><description>&lt;p>包括如下内容：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>一、绘图填充模式&lt;/p>
+&lt;p>类似 iOS 的 UIImageView 的填充模式：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;ol>
+&lt;li>&lt;code>ScaleToFill&lt;/code> 缩放填充，不保持比例&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>
+&lt;ol start="2">
+&lt;li>&lt;code>ScaleAspectFit&lt;/code> 缩放到所有内容完整居中显示，保持比例，多余的地方留白&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>
+&lt;ol start="3">
+&lt;li>&lt;code>ScaleAspectFill&lt;/code> 缩放居中填满整个画面，保持比例，超出的地方裁剪&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>二、纹理采样参数&lt;/p>
+&lt;p>当读取的纹理坐标超出纹理的时候如何处理&lt;/p>
+&lt;p>主要是 &lt;code>glTexParameteri&lt;/code> 的 4 种 采样 mode：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>GL_CLAMP_TO_EDGE&lt;/code>&lt;/li>
+&lt;li>&lt;del>GL_CLAMP_TO_BORDER&lt;/del> iOS 不支持这种&lt;/li>
+&lt;li>&lt;code>GL_REPEAT&lt;/code>&lt;/li>
+&lt;li>&lt;code>GL_MIRRORED_REPEAT&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>以及 &lt;code>glTexParameteri&lt;/code> 的插值模式&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>GL_NEAREST&lt;/code>&lt;/li>
+&lt;li>&lt;code>GL_LINEAR&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul></description></item><item><title>OpenGL ES in iOS - 3. 画一张图片</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</link><pubDate>Sun, 10 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</guid><description>&lt;p>本篇的最终目的是通过 OpenGL ES 的 &lt;code>glTexImage2D&lt;/code> API，将一张 2D 的 JPG 图片，转换成纹理，然后画到 layer 上。&lt;/p></description></item><item><title>AVFoundation - 1. 基础介绍</title><link>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/avfoundation/</link><pubDate>Thu, 14 Nov 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/avfoundation/</guid><description>&lt;p>AVFoundation 基础介绍，包括 &lt;code>CMTime&lt;/code> 的介绍和常用的一些类介绍&lt;/p></description></item><item><title>OpenGL ES in iOS - 1. 基础概念</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</link><pubDate>Thu, 18 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</guid><description>&lt;p>OpenGL ES 全称 OpenGL for Embedded Systems，是专门为嵌入式设备改良的 开源图形库&lt;/p>
 &lt;p>OpenGL ES 是 OpenGL 的简化版本，简化了一些功能。&lt;/p>
 &lt;p>OpenGL ES 的实现是基于 C 的&lt;/p></description></item><item><title>OpenGL ES in iOS - 2. 画一个三角形</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</link><pubDate>Thu, 18 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</guid><description>&lt;p>本篇主要目的是 &lt;strong>使用 OpenGL ES 画一个三角形&lt;/strong>，包含 直接上传顶点、使用 VAO、VBO、EBO 他们的组合渲染方式。&lt;/p>
 &lt;p>建议配合 &lt;a href="https://github.com/SourceKim/OpenGLES-iOS">Demo 工程&lt;/a> 食用。&lt;/p></description></item><item><title>YUV</title><link>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/yuv/</link><pubDate>Wed, 20 Jun 2018 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/yuv/</guid><description>&lt;p>YUV 和 RGB 相比：Y 表示亮度，UV 分量表示色差，能更好地对颜色进行压缩。&lt;/p></description></item></channel></rss>
