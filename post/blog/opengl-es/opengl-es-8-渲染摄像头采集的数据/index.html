@@ -1,0 +1,149 @@
+<!doctype html><html lang=en itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef） - Kim's Blog</title><meta name=description content="本篇文章使用 AVFoundation 采集 kCVPixelFormatType_32BGRA 数据，并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传到 OpenGL ES 的 texutre，然后将采集到的内容渲染到 EAGLLayer 上。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE\/","name":"Open g l e s in i o s 8. 渲染摄像头采集数据（ c v open g l e s texture cache ref）"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）","description":"本篇文章使用 AVFoundation 采集 kCVPixelFormatType_32BGRA 数据，并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传到 OpenGL ES 的 texutre，然后将采集到的内容渲染到 EAGLLayer 上。\n","inLanguage":"en","wordCount":539,"datePublished":"2020-05-18T23:00:00","dateModified":"2020-05-18T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, OpenGL ES, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）"><meta property="og:description" content="本篇文章使用 AVFoundation 采集 kCVPixelFormatType_32BGRA 数据，并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传到 OpenGL ES 的 texutre，然后将采集到的内容渲染到 EAGLLayer 上。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）"><meta name=twitter:description content="本篇文章使用 AVFoundation 采集 kCVPixelFormatType_32BGRA 数据，并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传到 OpenGL ES 的 texutre，然后将采集到的内容渲染到 EAGLLayer 上。"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>Toggle navigation</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on May 18, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;3&nbsp;minutes
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;539&nbsp;words
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><article role=main class=blog-post><p>本篇文章使用 AVFoundation 采集 <code>kCVPixelFormatType_32BGRA</code> 数据，并且将采集到的 <code>CMSampleBuffer</code> 使用 <code>CVOpenGLESTextureCacheRef</code> 快速上传到 OpenGL ES 的 <code>texutre</code>，然后将采集到的内容渲染到 <code>EAGLLayer</code> 上。</p><p>传统的 <code>glTextureImage2D</code> 也可以将 PixelBuffer 上传到 OpenGL 中，只需要传入 PixelBuffer 的 <code>BaseAddress</code> 到 <code>glTextureImage2D</code>，但是这个操作会 <strong>隐含着 <code>memcpy</code> 等内存拷贝操作，十分耗费性能。</strong></p><p>使用 <code>CVOpenGLESTextureCache</code> 可以达到 <strong>快速上传纹理</strong> 的作用，其原理类似于 VBO，即让 CPU 和 GPU 共用一块储存区，省去了内存之间的拷贝以及反复申请储存区的耗时。</p><h2 id=一整体流程>一、整体流程</h2><p>和之前的流程大致相同，如下代码所示：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>viewDidLoad</span> {
+    [super viewDidLoad];
+    
+    ......
+    
+    <span style=color:#75715e>// 配置摄像头，采集 BGRA 数据
+</span><span style=color:#75715e></span>    [self setupCamera: kCVPixelFormatType_32BGRA];
+}
+
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>viewDidAppear:</span>(<span style=color:#66d9ef>BOOL</span>)animated {
+    [super viewDidAppear: animated];
+    
+    [self setupContext];
+    [self setupLayer];
+    [self setupPrograms];
+    [self setupCVOpenGLTextureCache];
+    [self createBuffers];
+    [self setupVAOs];
+    
+    [AVCaptureDevice requestAccessForMediaType: AVMediaTypeVideo
+                             completionHandler:<span style=color:#f92672>^</span>(<span style=color:#66d9ef>BOOL</span> granted) {
+        <span style=color:#66d9ef>if</span> (granted) {
+            [self<span style=color:#f92672>-&gt;</span>_session startRunning];
+        }
+    }];
+}
+
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>captureOutput:</span>(AVCaptureOutput <span style=color:#f92672>*</span>)output
+<span style=color:#a6e22e>didOutputSampleBuffer:</span>(CMSampleBufferRef)sampleBuffer
+       <span style=color:#a6e22e>fromConnection:</span>(AVCaptureConnection <span style=color:#f92672>*</span>)connection {
+
+    .....
+
+    CVOpenGLESTextureRef texture <span style=color:#f92672>=</span> [self acquireTextureFromBuffer: imageBuffer]; <span style=color:#75715e>// PixelBuffer =&gt; OpenGL Texture
+</span><span style=color:#75715e></span>    glBindTexture(GL_TEXTURE_2D, CVOpenGLESTextureGetName(texture)); <span style=color:#75715e>// 这里注意要绑定这个 texture 到上下文，否则
+</span><span style=color:#75715e></span>    
+    [self render: _layerSize];
+    [self present];
+
+    .....
+    
+}
+</code></pre></div><ul><li><p>1、配置摄像头采集，使用 <code>kCVPixelFormatType_32BGRA</code> 输出格式</p></li><li><p>2、配置 <code>Context</code></p></li><li><p>3、配置 <code>layer</code></p></li><li><p>4、配置 <code>Program</code> & <code>Shaders</code></p></li><li><p>5、<strong>创建 <code>CVOpenGLTextureCache</code></strong>，供采集后 PixelBuffer 转 Texture 使用</p></li><li><p>6、创建 <code>RBO</code> & <code>FBO</code></p></li><li><p>7、配置 <code>VAO</code></p></li><li><p>8、运行采集 session</p></li><li><p>9、<strong>在采集到每一帧之后，将 <code>CMSampleBuffer</code> 转为 <code>OpenGL Texture</code>，绑定到上下文之后，执行渲染</strong></p></li></ul><h2 id=二关键的类>二、关键的类</h2><h3 id=1cvpixelbufferref--cvimagebufferref--cvopenglestextureref>1、<code>CVPixelBufferRef</code> & <code>CVImageBufferRef</code> & <code>CVOpenGLESTextureRef</code></h3><p>对于 Core Video，存储图像数据和属性主要是 <code>CVPixelBufferRef</code> 、 <code>CVImageBufferRef</code>、 <code>CVOpenGLESTextureRef</code>，但是他们在定义上，是完全一样的东西！</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>typedef</span> CVImageBufferRef CVOpenGLESTextureRef;
+
+<span style=color:#66d9ef>typedef</span> CVImageBufferRef CVPixelBufferRef;
+</code></pre></div><p>在我们采集到 <code>CMSampleBuffer</code> 中，可以通过 <code>CMSampleBufferGetImageBuffer(sampleBuffer)</code> 获取到 <code>CVImageBufferRef</code>。</p><h3 id=2cvopenglestexturecacheref-纹理缓存管理类>2、<code>CVOpenGLESTextureCacheRef</code> 纹理缓存管理类</h3><p>用来 <strong>创建和管理</strong> <code>CVOpenGLESTextureRef</code> 的类</p><h3 id=3cvopenglestextureref>3、<code>CVOpenGLESTextureRef</code></h3><p><code>Core Video</code> 和 <code>OpenGL ES</code> 的图片数据和属性，供两端都交互的存储区。</p><h2 id=三如何将-cmsamplebuffer-转为-opengl-texture-使用-cvopengltexturecache>三、如何将 <code>CMSampleBuffer</code> 转为 <code>OpenGL Texture</code> （使用 <code>CVOpenGLTextureCache</code>）</h2><h3 id=1创建全局的管理类-cvopenglestexturecacheref用以生成-opengl-texture>1、创建全局的管理类 <code>CVOpenGLESTextureCacheRef</code>，用以生成 OpenGL texture</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupCVOpenGLTextureCache</span> {
+    
+    CVReturn res <span style=color:#f92672>=</span> CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _ctx, NULL, <span style=color:#f92672>&amp;</span>_textureCache);
+    
+    <span style=color:#66d9ef>if</span> (res <span style=color:#f92672>!=</span> kCVReturnSuccess) {
+        NSLog(<span style=color:#e6db74>@&#34;Create cache failed&#34;</span>);
+    }
+}
+</code></pre></div><p>需要注意的是要在 Context 创建之后才能调用，因为要传入 Context</p><p>创建的结果保存在 <code>_textureCache</code>，之后将用该变量去生成 OpenGL texture</p><h3 id=2在采集到-cmsamplebuffer-之后通过-_texturecache-创建-opengl-texture>2、在采集到 <code>CMSampleBuffer</code> 之后，通过 <code>_textureCache</code> 创建 OpenGL texture</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (CVOpenGLESTextureRef)<span style=color:#a6e22e>acquireTextureFromBuffer:</span> (CVPixelBufferRef)buffer {
+    
+    <span style=color:#75715e>// 将 PixelBuffer 转成 OpenGL ES 的 Texture，并且将句柄存在 cvTexture 中
+</span><span style=color:#75715e></span>    CVOpenGLESTextureRef cvTexture;
+    CVReturn res <span style=color:#f92672>=</span> CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                _textureCache,
+                                                                buffer,
+                                                                NULL,
+                                                                GL_TEXTURE_2D,
+                                                                GL_RGBA,
+                                                                (GLsizei)CVPixelBufferGetWidth(buffer),
+                                                                (GLsizei)CVPixelBufferGetHeight(buffer),
+                                                                GL_RGBA,
+                                                                GL_UNSIGNED_BYTE, <span style=color:#75715e>// UInt8_t
+</span><span style=color:#75715e></span>                                                                <span style=color:#ae81ff>0</span>,
+                                                                <span style=color:#f92672>&amp;</span>cvTexture);
+    
+    .....
+    
+    <span style=color:#66d9ef>return</span> cvTexture;
+}
+</code></pre></div><p>主要是通过 <code>CVOpenGLESTextureCacheCreateTextureFromImage</code> 去获取</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>CVReturn CVOpenGLESTextureCacheCreateTextureFromImage(
+    CFAllocatorRef CV_NULLABLE allocator,
+    CVOpenGLESTextureCacheRef CV_NONNULL textureCache,
+    CVImageBufferRef CV_NONNULL sourceImage,
+    CFDictionaryRef CV_NULLABLE textureAttributes,
+    GLenum target,
+    GLint internalFormat,
+    GLsizei width,
+    GLsizei height,
+    GLenum format,
+    GLenum type,
+    size_t planeIndex,
+    CV_RETURNS_RETAINED_PARAMETER CVOpenGLESTextureRef CV_NULLABLE <span style=color:#f92672>*</span> CV_NONNULL textureOut )
+</code></pre></div><p>关键参数：</p><ul><li><p>sourceImage 采集到的 <code>CVImageBufferRef</code>，通过<code>CMSampleBufferGetImageBuffer(sampleBuffer)</code> 获取</p></li><li><p>planeIndex 平面的下标，如果是双平面 BiPlaner，如 NV12 就要传入对应平面的下标。这里是单平面，传入 0 即可</p></li><li><p>textureOut 创建的结果的指针，是一个 <code>CVOpenGLESTextureRef</code>，后续将通过该结果去做纹理绑定</p></li></ul><h3 id=3纹理绑定>3、纹理绑定</h3><p>通过第 2 步，已经获得了一个 <code>CVOpenGLESTextureRef</code>，我们需要将其绑定到我们的上下文 <code>Context</code> 中：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+    CVOpenGLESTextureRef texture <span style=color:#f92672>=</span> [self acquireTextureFromBuffer: imageBuffer]; <span style=color:#75715e>// PixelBuffer =&gt; OpenGL Texture
+</span><span style=color:#75715e></span>    glBindTexture(GL_TEXTURE_2D, CVOpenGLESTextureGetName(texture)); <span style=color:#75715e>// 这里注意要绑定这个 texture 到上下文，否则
+</span><span style=color:#75715e></span>
+</code></pre></div><p>主要是 <code>glBindTexture</code> 这句。</p><p>我们已经知道了 target 是一个 <code>GL_TEXTURE_2D</code> 所以可以直接写死，也可以通过 <code>CVOpenGLESTextureGetTarget(texture)</code> 去获取。</p><p>获取纹理 ID 的方法是 <code>CVOpenGLESTextureGetName(CVOpenGLESTextureRef texture)</code></p><p>这样我们就能将该纹理绑定到当前的上下文</p><h2 id=四注意点>四、注意点</h2><h3 id=1在-dealloc-的时候要-flush-纹理缓存管理类否则会造成内存泄漏>1、在 <code>dealloc</code> 的时候要 <code>flush</code> 纹理缓存管理类，否则会造成内存泄漏</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#75715e>// 内存管理
+</span><span style=color:#75715e></span>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>dealloc</span> {
+    
+    CVOpenGLESTextureCacheFlush(_textureCache, <span style=color:#ae81ff>0</span>);
+
+    ......
+}
+</code></pre></div><h3 id=2cvopenglestexturecachecreatetexturefromimage-报错>2、<code>CVOpenGLESTextureCacheCreateTextureFromImage</code> 报错</h3><p>错误代码：</p><ul><li><p>-6683 代表 <strong>错误设置 internalFormat / format / type 参数</strong></p></li><li><p>-6661 代表传入的 <code>pixelBuffer</code> 是 <code>NULL</code></p></li></ul><h3 id=3上下文切换回调的-currentcontext-为-nil>3、<strong>上下文切换</strong>（回调的 <code>currentContext</code> 为 nil）</h3><p>由于我们在 <code>ViewDidLoad</code> 的时候 <code>setupContext:</code>，也就是主线程；</p><p>而 iOS 的 <strong>每一个线程都有一个 OpenGL 的 Context，不设置的时候是 <code>nil</code></strong>；</p><p>我们相机采集的回调是 <strong>子线程</strong>，因此将主线程中创建个配置的 <code>Context</code> 设置到子线程中（通过 <code>[EAGLContext setCurrentContext: _ctx]</code>）。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>captureOutput:</span>(AVCaptureOutput <span style=color:#f92672>*</span>)output
+<span style=color:#a6e22e>didOutputSampleBuffer:</span>(CMSampleBufferRef)sampleBuffer
+       <span style=color:#a6e22e>fromConnection:</span>(AVCaptureConnection <span style=color:#f92672>*</span>)connection {
+    
+    <span style=color:#75715e>// 由于该回调在 子线程 回调，一个线程对应一个 Context，因此要把 Context 更新到当前线程
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>if</span> ([EAGLContext currentContext] <span style=color:#f92672>==</span> NULL) {
+        [EAGLContext setCurrentContext: _ctx];
+    }
+    
+    ......
+    
+}
+</code></pre></div><h3 id=4cvopenglestextureref-的内存管理>4、<code>CVOpenGLESTextureRef</code> 的内存管理</h3><p><code>CVOpenGLESTextureRef</code> 这个类是以 <code>Ref</code> 结尾的，不能使用 <code>ARC</code> 进行内存管理，因此我们需要在使用之后 <strong>调用 <code>CFRelease</code> 将其释放掉</strong>。否则会导致的问题 <strong>摄像头采集了几帧之后就不采集了，因为我们一直持有着原先的 <code>CMSampleBuffer</code></strong>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>captureOutput:</span>(AVCaptureOutput <span style=color:#f92672>*</span>)output
+<span style=color:#a6e22e>didOutputSampleBuffer:</span>(CMSampleBufferRef)sampleBuffer
+       <span style=color:#a6e22e>fromConnection:</span>(AVCaptureConnection <span style=color:#f92672>*</span>)connection {
+    
+    ......
+
+    CVPixelBufferLockBaseAddress(imageBuffer, <span style=color:#ae81ff>0</span>);
+
+    CVOpenGLESTextureRef texture <span style=color:#f92672>=</span> [self acquireTextureFromBuffer: imageBuffer]; <span style=color:#75715e>// PixelBuffer =&gt; OpenGL Texture
+</span><span style=color:#75715e></span>    
+    ......
+
+    CVPixelBufferUnlockBaseAddress(imageBuffer, <span style=color:#ae81ff>0</span>);
+    
+    <span style=color:#66d9ef>if</span> (texture <span style=color:#f92672>!=</span> NULL) { <span style=color:#75715e>// 如果 texture 为 NULL，再 Release 就会出现 `EXC_BREAKPOINT` crash！
+</span><span style=color:#75715e></span>        CFRelease(texture); <span style=color:#75715e>// 没有这个，就会不再采集！！！！
+</span><span style=color:#75715e></span>    }
+    
+}
+</code></pre></div><p>需要注意的是，如果 <code>CVOpenGLESTextureRef</code> 变量为 <code>NULL</code>，对其调用 <code>CFRelease</code> 会导致 <code>EXC_BREAKPOINT</code> crash！因此需要在调用之前判断一下是否是 <code>NULL</code>。</p><h3 id=5画面上下颠倒>5、画面上下颠倒</h3><p>因为 Core Video 和 OpenGL ES 的坐标系中，<strong>前者的原点在左上角，后者的原点在左下角</strong>，因此 Y 轴的相反的，所以渲染出的画面是上下颠倒的。</p><p><strong>采集的 PixelBuffer 原点在左上角，绘制的 texture 原点在左下角</strong></p><p>这里我们简单处理一下，让采集的图像原点也在左下角</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    connection.videoOrientation <span style=color:#f92672>=</span> AVCaptureVideoOrientationPortraitUpsideDown
+</code></pre></div><p>直接设置 <code>AVCaptureVideoDataOutput</code> 的 <code>connection</code> 的 <code>videoOrientation</code> 为<strong>垂直上下颠倒 <code>AVCaptureVideoOrientationPortraitUpsideDown</code></strong> 即可。</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/opengl-es/>OpenGL ES</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f&text=OpenGL%20ES%20in%20iOS%20-%208.%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e6%95%b0%e6%8d%ae%ef%bc%88CVOpenGLESTextureCacheRef%ef%bc%89&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%208.%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e6%95%b0%e6%8d%ae%ef%bc%88CVOpenGLESTextureCacheRef%ef%bc%89" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%208.%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e6%95%b0%e6%8d%ae%ef%bc%88CVOpenGLESTextureCacheRef%ef%bc%89" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%208.%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e6%95%b0%e6%8d%ae%ef%bc%88CVOpenGLESTextureCacheRef%ef%bc%89" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-8-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584%25E6%2595%25B0%25E6%258D%25AE%2f&description=OpenGL%20ES%20in%20iOS%20-%208.%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e6%95%b0%e6%8d%ae%ef%bc%88CVOpenGLESTextureCacheRef%ef%bc%89" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>See also</h4><ul><li><a href=/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/>OpenGL ES in iOS - 7 画一个立方体</a></li><li><a href=/post/blog/opengl-es/opengl-es-6-%E4%B8%89%E7%BB%B4%E5%8F%98%E6%8D%A2/>OpenGL ES in iOS - 6 三维变换</a></li><li><a href=/post/blog/opengl-es/opengl-es-5-%E7%BB%98%E5%88%B6%E5%88%B0-texture-%E5%AE%9E%E7%8E%B0%E6%BB%A4%E9%95%9C%E9%93%BE/>OpenGL ES in iOS - 5 绘制到 texture (实现滤镜链)</a></li><li><a href=/post/blog/opengl-es/opengl-es-4-%E7%BA%B9%E7%90%86%E9%87%87%E6%A0%B7%E8%AF%A6%E8%A7%A3/>OpenGL ES in iOS - 4. 纹理采样详解</a></li><li><a href=/post/blog/opengl-es/opengl-es-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/>OpenGL ES in iOS - 3. 画一张图片</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/ data-toggle=tooltip data-placement=top title="OpenGL ES in iOS - 7 画一个立方体">&larr; Previous Post</a></li></ul><span id=/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/ class=leancloud_visitors data-flag-title="OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）"><span class=post-meta-item-text>文章阅读量</span>
+<span class=leancloud-visitors-count>1000000</span><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:true});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted"><a href=https://gohugo.io>Hugo v0.69.2</a> powered &nbsp;&bull;&nbsp; Theme <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> adapted from <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
