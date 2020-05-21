@@ -1,0 +1,165 @@
+<!doctype html><html lang=en itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据 - Kim's Blog</title><meta name=description content="本篇文章使用 AVFoundation 采集 YUV 数据（包括 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange & kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange），并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传 YUV 数据到 OpenGL ES 的 texutre，最后将采集到的内容渲染到 EAGLLayer 上。
+代码对应 仓库 中的 8. 渲染摄像头采集的 YUV（YCbCr）数据"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-9-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84-yuv-%E6%95%B0%E6%8D%AE\/","name":"Open g l e s in i o s open g l e s 9 渲染摄像头采集的 y u v 数据"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据","description":"本篇文章使用 AVFoundation 采集 YUV 数据（包括 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange \x26amp; kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange），并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传 YUV 数据到 OpenGL ES 的 texutre，最后将采集到的内容渲染到 EAGLLayer 上。\n代码对应 仓库 中的 8. 渲染摄像头采集的 YUV（YCbCr）数据\n","inLanguage":"en","wordCount":791,"datePublished":"2020-05-19T23:00:00","dateModified":"2020-05-19T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, OpenGL ES, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-9-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84-yuv-%E6%95%B0%E6%8D%AE\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据"><meta property="og:description" content="本篇文章使用 AVFoundation 采集 YUV 数据（包括 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange & kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange），并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传 YUV 数据到 OpenGL ES 的 texutre，最后将采集到的内容渲染到 EAGLLayer 上。
+代码对应 仓库 中的 8. 渲染摄像头采集的 YUV（YCbCr）数据"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/opengl-es/opengl-es-9-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84-yuv-%E6%95%B0%E6%8D%AE/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据"><meta name=twitter:description content="本篇文章使用 AVFoundation 采集 YUV 数据（包括 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange & kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange），并且将采集到的 CMSampleBuffer 使用 CVOpenGLESTextureCacheRef 快速上传 YUV …"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>Toggle navigation</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on May 19, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;minutes
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;791&nbsp;words
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><article role=main class=blog-post><p>本篇文章使用 AVFoundation 采集 <code>YUV</code> 数据（包括 <code>kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</code> & <code>kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</code>），并且将采集到的 <code>CMSampleBuffer</code> 使用 <code>CVOpenGLESTextureCacheRef</code> 快速上传 <code>YUV</code> 数据到 OpenGL ES 的 <code>texutre</code>，最后将采集到的内容渲染到 <code>EAGLLayer</code> 上。</p><p>代码对应 <a href=https://github.com/SourceKim/OpenGLES-iOS>仓库</a> 中的 <code>8. 渲染摄像头采集的 YUV（YCbCr）数据</code></p><h2 id=一整体流程>一、整体流程</h2><p>在 <a href=https://www.uiimage.com/post/blog/%E9%9F%B3%E8%A7%86%E9%A2%91/yuv/>这篇文章</a> 中提到了：</p><p>iOS 的摄像头只能采集 <strong>双平面</strong> 的 YUV（YCbCr) 数据，其中比例是 4：2：2 即 420，第一个平面都是 Y （亮度 Luma）数据，然后第二个平面是 UV（色差 Chroma） 数据，UV 数据交替存储。</p><p>因此我们需要两个 texture，分别去存储 Luma 和 Chrome 数据。</p><p>整体流程还是和上一篇 <a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/>OpenGL ES - 8 渲染摄像头采集的数据 （BGRA）</a> 一样：</p><ul><li><p>1、配置摄像头采集，使用 <code>kCVPixelFormatType_32BGRA</code> 输出格式</p></li><li><p>2、配置 <code>Context</code></p></li><li><p>3、配置 <code>layer</code></p></li><li><p>4、配置 <code>Program</code> & <code>Shaders</code></p></li><li><p>5、<strong>创建 <code>CVOpenGLTextureCache</code></strong>，供采集后 PixelBuffer 转 Texture 使用</p></li><li><p>6、创建 <code>RBO</code> & <code>FBO</code></p></li><li><p>7、配置 <code>VAO</code></p></li><li><p>8、运行采集 session</p></li><li><p>9、<strong>在采集到每一帧之后，将 <code>CMSampleBuffer</code> 转为 <code>OpenGL Texture</code>，绑定到上下文之后，执行渲染</strong></p></li></ul><p>只是在最后一步，会从 <code>CMSampleBuffer</code> 中获取到 2 个 <code>OpenGL texture</code>（luma & chroma），再执行渲染。</p><h2 id=二将-yuv-cmsamplebuffer-转成亮度luma-色度chroma-texture>二、将 YUV <code>CMSampleBuffer</code> 转成亮度（luma）& 色度（chroma） <code>texture</code></h2><p>先上代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC><span style=color:#75715e>#pragma mark - 采集的 Pixel Buffer 转换成 OpenGL ES 的 Texturex
+</span><span style=color:#75715e></span>- (CVOpenGLESTextureRef)<span style=color:#a6e22e>acquireTextureFromBuffer:</span> (CVPixelBufferRef)buffer <span style=color:#a6e22e>isLuma:</span> (<span style=color:#66d9ef>bool</span>)isLuma {
+    
+    GLint format <span style=color:#f92672>=</span> isLuma <span style=color:#f92672>?</span> GL_LUMINANCE : GL_LUMINANCE_ALPHA; <span style=color:#75715e>// 1 channel : 2 channel，无论 ES2 还是 ES3 都用这两个
+</span><span style=color:#75715e></span>    size_t planeIndex <span style=color:#f92672>=</span> isLuma <span style=color:#f92672>?</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>:</span> <span style=color:#ae81ff>1</span>; <span style=color:#75715e>// 选择某一个平面
+</span><span style=color:#75715e></span>    GLenum textureIndex <span style=color:#f92672>=</span> isLuma <span style=color:#f92672>?</span> _lumaTextureBufferIndex : _chromaTextureBufferIndex;
+    
+    <span style=color:#75715e>// 将 PixelBuffer 转成 OpenGL ES 的 Texture，并且将句柄存在 cvTexture 中
+</span><span style=color:#75715e></span>    CVOpenGLESTextureRef cvTexture;
+    CVReturn res <span style=color:#f92672>=</span> CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                _textureCache,
+                                                                buffer,
+                                                                NULL,
+                                                                GL_TEXTURE_2D,
+                                                                format,
+                                                                (GLsizei)CVPixelBufferGetWidthOfPlane(buffer, planeIndex),
+                                                                (GLsizei)CVPixelBufferGetHeightOfPlane(buffer, planeIndex),
+                                                                format,
+                                                                GL_UNSIGNED_BYTE, <span style=color:#75715e>// UInt8_t
+</span><span style=color:#75715e></span>                                                                planeIndex,
+                                                                <span style=color:#f92672>&amp;</span>cvTexture);
+    
+    <span style=color:#75715e>// 错误设置上面的 internalFormat / format / type 参数都会导致 res 为 6683 ！
+</span><span style=color:#75715e></span>    <span style=color:#75715e>// 出现 -6683 请检查上述参数！
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 若传入的 buffer 为 nil，则会出现 -6661 错误
+</span><span style=color:#75715e></span>    
+    <span style=color:#66d9ef>if</span> (res <span style=color:#f92672>!=</span> kCVReturnSuccess) {
+        NSLog(<span style=color:#e6db74>@&#34;Read texture faild from sample buffer, %d&#34;</span>, res);
+    }
+    
+    <span style=color:#75715e>// 激活 Texture &amp; 为 Texture 设定纹理参数
+</span><span style=color:#75715e></span>    glActiveTexture(GL_TEXTURE0 <span style=color:#f92672>+</span> textureIndex);
+    glBindTexture(GL_TEXTURE_2D, CVOpenGLESTextureGetName(cvTexture)); <span style=color:#75715e>// CVOpenGLESTextureGetName 可以获得 texture id
+</span><span style=color:#75715e></span>    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
+    <span style=color:#75715e>// 重置 Context 的 GL_TEXTURE_2D，防止意外错误
+</span><span style=color:#75715e></span>    glBindTexture(GL_TEXTURE_2D, <span style=color:#ae81ff>0</span>);
+    
+    <span style=color:#66d9ef>return</span> cvTexture;
+}
+</code></pre></div><p>将上一篇的从 BGRA buffer 获取 texture 的函数修改了一下，以便能获取 luma & chroma 的 texture。</p><p>下面解释一下各个变量的含义：</p><h3 id=1format-数据格式>1、format 数据格式</h3><p>这里定义的 format 变量，是指数据的存储类型。已经之前使用的是 <code>GL_RGB</code> 存储的是 3 个 channel，即 3 个 byte 的数据；但是在这里我们的 Luma 数据是 1 个 byte 的，Chroma 对应的是 UV，每个是 1 个 byte 一共 2 byte 表示一个数据。因此我们使用：</p><ul><li><p><code>GL_LUMINANCE</code> 代表 1 byte 的数据 （仅 luma）</p></li><li><p><code>GL_LUMINANCE_ALPHA</code> 代表 2 byte 的数据 （luma & alpha，但是这里我们用来表示 U & V，或者说 Cb & Cr）</p></li></ul><h3 id=2planeindex-平面索引>2、planeIndex 平面索引</h3><p>存储 YUV 数据的时候，pixel buffer 会使用两个平面去存储</p><ul><li><p>0 代表 Y 数据</p></li><li><p>1 代表 UV 数据</p></li></ul><h3 id=3textureindex-纹理索引>3、textureIndex 纹理索引</h3><p>用以保存纹理句柄，事先已经声明好了</p><h3 id=4宽--高>4、宽 & 高</h3><p>已知 iOS 中的双平面 YUV 数据实际使用的是 420(v | f)，即每 4 个 Y，对应 2 个 UV，所以 Y buffer 的宽高是 UV buffer 的两倍。比如说这里我们是 640x480 的，那么 Y buffer 就是 640x480 的，UV buffer 则是 320x240 的。</p><p>但是我们可以有更加方便准确的方式：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC>size_t CVPixelBufferGetWidthOfPlane( CVPixelBufferRef CV_NONNULL pixelBuffer, size_t planeIndex )
+
+size_t CVPixelBufferGetHeightOfPlane( CVPixelBufferRef CV_NONNULL pixelBuffer, size_t planeIndex )
+</code></pre></div><p>通过这两个 API，传入 buffer 和平面索引即可获取对应索引的宽高。</p><h2 id=三yuv-转-rgb>三、YUV 转 RGB</h2><h3 id=1转换-shader>1、转换 shader</h3><p>转换是在 fragment shader 中完成的</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC>uniform sampler2D lumaTexture;
+uniform sampler2D chromaTexture;
+
+uniform highp mat3 YUV_To_RGB_Matrix;
+uniform highp vec3 YUV_Translation;
+
+varying highp vec2 outTexCoor;
+
+<span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>() {
+    
+    highp vec3 yuv, rgb;
+    
+    yuv.r <span style=color:#f92672>=</span> texture2D(lumaTexture, outTexCoor).r;
+    yuv.gb <span style=color:#f92672>=</span> texture2D(chromaTexture, outTexCoor).ra; <span style=color:#75715e>// 注意，是 ra
+</span><span style=color:#75715e></span>    
+    rgb <span style=color:#f92672>=</span> YUV_To_RGB_Matrix <span style=color:#f92672>*</span> (yuv <span style=color:#f92672>+</span> YUV_Translation);
+    
+    gl_FragColor <span style=color:#f92672>=</span> vec4(rgb, <span style=color:#ae81ff>1.0</span>);
+}
+</code></pre></div><ul><li><p>a、先读取 <code>lumaTexture</code> & <code>chromaTexture</code>，组装成 YUV 数据 （这里由于 <code>outTexCoor</code> 纹理点是归一化的，所以直接采样即可）</p></li><li><p>b、将 YUV 数据再加上一个偏移标量 <code>YUV_Translation</code> 得到一个 YUV 新的值</p></li><li><p>c、转换矩阵 <code>YUV_To_RGB_Matrix</code> 乘 b 步骤获取的值即可。</p></li></ul><h3 id=2转换矩阵--偏移标量>2、转换矩阵 & 偏移标量</h3><p>转换矩阵 & 偏移标量，会根据采集格式以及编码格式决定的，所以我们先了解如何获取这两种格式：</p><ul><li><p>a、采集的格式是 <code>FullRange</code> 还是 <code>VideoRange</code></p><p>可以通过这样判断</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC>    <span style=color:#66d9ef>if</span> (_useFullRangeYUV) {
+        [self setupCamera: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange];
+    } <span style=color:#66d9ef>else</span> {
+        [self setupCamera: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange];
+    }
+</code></pre></div><p>使用了 <code>kCVPixelFormatType_420YpCbCr8BiPlanarFullRange</code> 采集就是 <code>FullRange</code>，而使用 <code>kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange</code> 采集就是 <code>VideoRange</code></p></li><li><p>b. buffer 使用 <code>BT.601</code> 还是 <code>BT.709</code> 编码格式</p><p>可以通过这样判断</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC>    CFTypeRef matrixType <span style=color:#f92672>=</span> CVBufferGetAttachment(imageBuffer, kCVImageBufferYCbCrMatrixKey, NULL);
+    <span style=color:#66d9ef>bool</span> use601;
+      
+    <span style=color:#66d9ef>if</span> (matrixType <span style=color:#f92672>!=</span> NULL) {
+        use601 <span style=color:#f92672>=</span> CFStringCompare(matrixType, kCVImageBufferYCbCrMatrix_ITU_R_601_4, <span style=color:#ae81ff>0</span>) <span style=color:#f92672>==</span> kCFCompareEqualTo;
+    } <span style=color:#66d9ef>else</span> {
+        use601 <span style=color:#f92672>=</span> true;
+    }
+</code></pre></div><p>获取 buffer 的 <code>kCVImageBufferYCbCrMatrixKey</code> 即可，然后对比 <code>kCVImageBufferYCbCrMatrix_ITU_R_601_4</code> 这两个 CFString，相同就是使用了 <code>BT.601</code>，否则为 <code>BT.709</code>。</p></li></ul><p>下面是 YUV 转 RGB 在不同采集格式和编码格式的计算公式：</p><h4 id=videorange--601>VideoRange + 601</h4><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/VideoRange_601.png alt=VideoRange_601></p><h4 id=fullrange--601>FullRange + 601</h4><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/fullrange_601.png alt=fullrange_601></p><h4 id=videorange--709>VideoRange + 709</h4><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/videorange_709.png alt=videorange_709></p><p>所以可以得出如下的矩阵 & 标量定义，demo 工程的 <code>YUV_To_RGB_Matrices_Vectors.h</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC><span style=color:#75715e>/*
+</span><span style=color:#75715e> YUV 转 RGB 矩阵
+</span><span style=color:#75715e> 
+</span><span style=color:#75715e> Copy from GPUImage/GPUImageVideoCamera.m
+</span><span style=color:#75715e> */</span>
+
+<span style=color:#75715e>// Color Conversion Constants (YUV to RGB) including adjustment from 16-235/16-240 (video range)
+</span><span style=color:#75715e></span>
+<span style=color:#75715e>// BT.601, which is the standard for SDTV.
+</span><span style=color:#75715e></span><span style=color:#66d9ef>const</span> GLfloat kColorConversion601[] <span style=color:#f92672>=</span> {
+    <span style=color:#ae81ff>1.164</span>,  <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span>,
+    <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.392</span>, <span style=color:#ae81ff>2.017</span>,
+    <span style=color:#ae81ff>1.596</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.813</span>,   <span style=color:#ae81ff>0.0</span>,
+};
+
+<span style=color:#75715e>// BT.709, which is the standard for HDTV.
+</span><span style=color:#75715e></span><span style=color:#66d9ef>const</span> GLfloat kColorConversion709[] <span style=color:#f92672>=</span> {
+    <span style=color:#ae81ff>1.164</span>,  <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span>,
+    <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.213</span>, <span style=color:#ae81ff>2.112</span>,
+    <span style=color:#ae81ff>1.793</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.533</span>,   <span style=color:#ae81ff>0.0</span>,
+};
+
+<span style=color:#75715e>// BT.601 full range (ref: http://www.equasys.de/colorconversion.html)
+</span><span style=color:#75715e></span><span style=color:#66d9ef>const</span> GLfloat kColorConversion601FullRange[] <span style=color:#f92672>=</span> {
+    <span style=color:#ae81ff>1.0</span>,    <span style=color:#ae81ff>1.0</span>,    <span style=color:#ae81ff>1.0</span>,
+    <span style=color:#ae81ff>0.0</span>,    <span style=color:#f92672>-</span><span style=color:#ae81ff>0.343</span>, <span style=color:#ae81ff>1.765</span>,
+    <span style=color:#ae81ff>1.4</span>,    <span style=color:#f92672>-</span><span style=color:#ae81ff>0.711</span>, <span style=color:#ae81ff>0.0</span>,
+};
+
+
+<span style=color:#75715e>/*
+</span><span style=color:#75715e> YUV 转 RGB 的变换 Translation
+</span><span style=color:#75715e> 
+</span><span style=color:#75715e> Inspire by GPUImage
+</span><span style=color:#75715e> */</span>
+
+<span style=color:#66d9ef>const</span> GLfloat kColorTranslationFullRange[] <span style=color:#f92672>=</span> {
+    <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>
+};
+
+<span style=color:#66d9ef>const</span> GLfloat kColorTranslationVideoRange[] <span style=color:#f92672>=</span> {
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>16.0</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>255.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>
+};
+</code></pre></div><p>接着我们可以根据上面的判定来获取要传哪一个矩阵 & 标量到 shader 中：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-OBJC data-lang=OBJC><span style=color:#75715e>#pragma mark - 更新 YUV 转 RGB 的 Tramsform Matrix 和 Translation Vector
+</span><span style=color:#75715e></span>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>updateMatrixAndVector:</span>(CVImageBufferRef)imageBuffer
+                  <span style=color:#a6e22e>isFullRange:</span>(<span style=color:#66d9ef>bool</span>)isFullRange {
+    
+    CFTypeRef matrixType <span style=color:#f92672>=</span> CVBufferGetAttachment(imageBuffer, kCVImageBufferYCbCrMatrixKey, NULL);
+    <span style=color:#66d9ef>bool</span> use601;
+    
+    <span style=color:#66d9ef>if</span> (matrixType <span style=color:#f92672>!=</span> NULL) {
+        use601 <span style=color:#f92672>=</span> CFStringCompare(matrixType, kCVImageBufferYCbCrMatrix_ITU_R_601_4, <span style=color:#ae81ff>0</span>) <span style=color:#f92672>==</span> kCFCompareEqualTo;
+    } <span style=color:#66d9ef>else</span> {
+        use601 <span style=color:#f92672>=</span> true;
+    }
+    
+    <span style=color:#66d9ef>if</span> (use601) {
+        _YUV_To_RGB_Matrix <span style=color:#f92672>=</span> isFullRange <span style=color:#f92672>?</span> kColorConversion601FullRange : kColorConversion601;
+    } <span style=color:#66d9ef>else</span> {
+        _YUV_To_RGB_Matrix <span style=color:#f92672>=</span> kColorConversion709;
+    }
+    
+    _YUV_Tranlation <span style=color:#f92672>=</span> isFullRange <span style=color:#f92672>?</span> kColorTranslationFullRange : kColorTranslationVideoRange;
+}
+</code></pre></div><p>获取到了之后，上传到 shader 的 uniform 中即可。</p><h2 id=四收获>四、收获</h2><ul><li><p><code>CVOpenGLESTextureCacheRef</code> 可以将一个 buffer 转换成多个 texture （Luma & chroma），而且转换的速度很快，涉及到摄像头采集的渲染一定要使用这个类。</p></li><li><p><code>YUV（YCbCr）</code> 数据可以通过将色差压缩，比如 2 个亮度使用 1 个色差，达到大幅度减少帧的存储体积，而不过分影响视觉，是一个很好的数据格式，在带宽宝贵和视频类百花齐放的今天会显得十分常用，不仅是摄像头采集的，通常网络传输所用的数据压缩如 h.264 也会十分常用，了解其如何转换成 RGB 然后渲染上屏尤为重要。</p></li></ul><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/opengl-es/>OpenGL ES</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f&text=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%20%e6%95%b0%e6%8d%ae&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%20%e6%95%b0%e6%8d%ae" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%20%e6%95%b0%e6%8d%ae" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%20%e6%95%b0%e6%8d%ae" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-9-%25E6%25B8%25B2%25E6%259F%2593%25E6%2591%2584%25E5%2583%258F%25E5%25A4%25B4%25E9%2587%2587%25E9%259B%2586%25E7%259A%2584-yuv-%25E6%2595%25B0%25E6%258D%25AE%2f&description=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%20%e6%95%b0%e6%8d%ae" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>See also</h4><ul><li><a href=/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/>OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）</a></li><li><a href=/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/glgetuniformlocation-%E8%BF%94%E5%9B%9E-1/>OpenGL ES 获取 Uniform 的位置 glGetUniformLocation 返回 -1</a></li><li><a href=/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/>OpenGL ES in iOS - 7 画一个立方体</a></li><li><a href=/post/blog/opengl-es/opengl-es-6-%E4%B8%89%E7%BB%B4%E5%8F%98%E6%8D%A2/>OpenGL ES in iOS - 6 三维变换</a></li><li><a href=/post/blog/opengl-es/opengl-es-5-%E7%BB%98%E5%88%B6%E5%88%B0-texture-%E5%AE%9E%E7%8E%B0%E6%BB%A4%E9%95%9C%E9%93%BE/>OpenGL ES in iOS - 5 绘制到 texture (实现滤镜链)</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/ data-toggle=tooltip data-placement=top title="OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）">&larr; Previous Post</a></li></ul><span id=/post/blog/opengl-es/opengl-es-9-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84-yuv-%E6%95%B0%E6%8D%AE/ class=leancloud_visitors data-flag-title="OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据"><span class=post-meta-item-text>文章阅读量</span>
+<span class=leancloud-visitors-count>1000000</span><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted"><a href=https://gohugo.io>Hugo v0.69.2</a> powered &nbsp;&bull;&nbsp; Theme <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> adapted from <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
