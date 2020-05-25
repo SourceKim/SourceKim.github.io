@@ -1,0 +1,327 @@
+<!doctype html><html lang=en itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>OpenGL ES in iOS - OpenGL ES - 10 光照 - Kim's Blog</title><meta name=description content="本篇文章最终的效果是渲染两个 3D 的立方体，一个作为光源，另一个作为物体。前者固定不动，后者不断旋转，然后光线在其身上就会发生因角度不同的变化。
+主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+代码对应 仓库 中的 9. 光照"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-10-%E5%85%89%E7%85%A7\/","name":"Open g l e s in i o s open g l e s 10 光照"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"OpenGL ES in iOS - OpenGL ES - 10 光照","description":"本篇文章最终的效果是渲染两个 3D 的立方体，一个作为光源，另一个作为物体。前者固定不动，后者不断旋转，然后光线在其身上就会发生因角度不同的变化。\n主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。\n代码对应 仓库 中的 9. 光照\n","inLanguage":"en","wordCount":1248,"datePublished":"2020-05-24T23:00:00","dateModified":"2020-05-24T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, OpenGL ES, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/opengl-es\/opengl-es-10-%E5%85%89%E7%85%A7\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="OpenGL ES in iOS - OpenGL ES - 10 光照"><meta property="og:description" content="本篇文章最终的效果是渲染两个 3D 的立方体，一个作为光源，另一个作为物体。前者固定不动，后者不断旋转，然后光线在其身上就会发生因角度不同的变化。
+主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+代码对应 仓库 中的 9. 光照"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/opengl-es/opengl-es-10-%E5%85%89%E7%85%A7/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="OpenGL ES in iOS - OpenGL ES - 10 光照"><meta name=twitter:description content="本篇文章最终的效果是渲染两个 3D 的立方体，一个作为光源，另一个作为物体。前者固定不动，后者不断旋转，然后光线在其身上就会发生因角度不同的变化。
+主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+代码对应 仓库 中的 9. 光照"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>Toggle navigation</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>OpenGL ES in iOS - OpenGL ES - 10 光照</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on May 24, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;minutes
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1248&nbsp;words
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><article role=main class=blog-post><p>本篇文章最终的效果是渲染两个 3D 的立方体，一个作为光源，另一个作为物体。前者固定不动，后者不断旋转，然后光线在其身上就会发生因角度不同的变化。</p><p>主要采用的是 <strong>冯氏光照模型(Phong Lighting Model)</strong> 来实现。</p><p>代码对应 <a href=https://github.com/SourceKim/OpenGLES-iOS>仓库</a> 中的 <code>9. 光照</code></p><p>最终实现的效果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/gif/lightning.gif alt="lightning gif"></p><h2 id=一冯氏光照模型phone-lightning-model>一、冯氏光照模型（Phone Lightning Model）</h2><p>对于我们世界而言，光照是许多因素组成的，但是在变成的世界中，我们以冯氏光照模型便可以将光照表达出来：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/basic_lighting_phong.png alt="phone lightning"></p><p>其中冯氏光照模型由 3 个分量组成：</p><ul><li><code>环境光照(Ambient Lighting)</code>：即使在黑暗的情况下，世界上也仍然有一些光亮(月亮、一个来自远处的光)，所以物体永远不会是完全黑暗的。我们使用环境光照来模拟这种情况，也就是无论如何永远都给物体一些颜色。</li><li><code>漫反射光照(Diffuse Lighting)</code>：模拟一个发光物对物体的方向性影响(Directional Impact)。它是冯氏光照模型最显著的组成部分。面向光源的一面比其他面会更亮。</li><li><code>镜面光照(Specular Lighting)</code>：模拟有光泽物体上面出现的亮点。镜面光照的颜色，相比于物体的颜色更倾向于光的颜色。</li></ul><p>通过设置物体的光照相关参数，最终将各个分量之和与物体颜色相乘，即可得到最后的颜色：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl>    color <span style=color:#f92672>=</span> (ambient <span style=color:#f92672>+</span> diffuse <span style=color:#f92672>+</span> specular) <span style=color:#f92672>*</span> originColor;
+</code></pre></div><p>假设现在的物体颜色（<code>objColor</code>）是绿色，灯光颜色（<code>lightColor</code>）是白色，不加入任何光照是这种效果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChatf89d55d46efa2f912d9ec8b4a52ccc11.png alt=origin></p><p>下面开始介绍冯氏光照模型的 3 种光照分量对物体的影响。</p><h3 id=环境光照ambient-lighting>环境光照(Ambient Lighting)</h3><p>环境光分量 (<code>ambient</code>) = 环境光强度 (<code>ambientStrength</code>) * 灯光颜色 (<code>lightColor</code>)</p><p>反映的是遍布在物体周围的光，<strong>作用于所有的面</strong></p><p>PS：环境光强度 (<code>ambientStrength</code>) 通常是一个很小的值，比如 0.1，所以仅设置该分量会导致物体十分暗</p><p>仅加了环境光分量的 shader：</p><p>fragment shader：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl>
+        <span style=color:#75715e>// Ambient</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> ambient <span style=color:#f92672>=</span> ambientStrength <span style=color:#f92672>*</span> lightColor;
+
+        color <span style=color:#f92672>=</span> (ambient) <span style=color:#f92672>*</span> originColor;
+        gl_FragColor <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec4</span>(color, <span style=color:#ae81ff>1.0</span>);
+</code></pre></div><p>设环境光强度 (<code>ambientStrength</code>) 为 0.1，则效果如下</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChatdb94bcbe2bd756e6e9867936ae5eb37e.png alt=ambient></p><p>仔细看，还是可以看出来，物体的原本颜色是绿色，只是非常暗。</p><h3 id=漫反射光照diffuse-lighting>漫反射光照(Diffuse Lighting)</h3><p>漫反射是指 <strong>光源照射到物体片段上反射的颜色，当光源与物体片段的法线夹角越小，则反射的光越多即越亮</strong></p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/diffuse_light.png alt=漫反射原理></p><blockquote><p>法线是指垂直于平面的单位向量</p></blockquote><p>由上面的定义可以看出，<strong>漫反射是作用于所有片段的</strong>。</p><p>因为计算漫反射还需要 <strong>法向量 & 当前片段的位置</strong>，因此要修改顶点着色器去计算出这两个值</p><p>vertex shader</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl><span style=color:#66d9ef>attribute</span> <span style=color:#66d9ef>vec3</span> position;
+<span style=color:#66d9ef>attribute</span> <span style=color:#66d9ef>vec3</span> normal;
+
+<span style=color:#66d9ef>uniform</span> mat4 modelMatrix;
+<span style=color:#66d9ef>uniform</span> mat4 viewMatrix;
+<span style=color:#66d9ef>uniform</span> mat4 projectionMatrix;
+
+<span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>vec3</span> outNormal; <span style=color:#75715e>// 输出的法向量</span>
+<span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>vec3</span> outFragmentPosition; <span style=color:#75715e>// 输出的片段位置</span>
+
+<span style=color:#66d9ef>void</span> main() {
+    
+    gl_Position <span style=color:#f92672>=</span> projectionMatrix <span style=color:#f92672>*</span> viewMatrix <span style=color:#f92672>*</span> modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(position, <span style=color:#ae81ff>1.0</span>);
+    outNormal <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec3</span>(modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(normal, <span style=color:#ae81ff>0.0</span>));
+    outFragmentPosition <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec3</span>(modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(position, <span style=color:#ae81ff>1.0</span>));
+}
+</code></pre></div><p>其中需要：</p><ul><li><p>定义好物体的法向量 <code>normal</code> 传进来顶点着色器</p></li><li><p>将变换矩阵乘 <code>normal</code> 得出变换后的法向量 <code>outNormal</code></p></li><li><p>将变换矩阵乘 <code>position</code> 得出变换后的片段位置 <code>outFragmentPosition</code></p></li></ul><p>接着计算漫反射需要使用到 <code>入射光线的方向 lightDir</code>，以及归一化法线，两者点乘（<code>dot</code>）即可以得到他们的夹角，也就是漫反射程度。</p><p>fragment shader</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl>        <span style=color:#75715e>// Diffuse</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> norm <span style=color:#f92672>=</span> normalize(outNormal);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> lightDir <span style=color:#f92672>=</span> normalize(lightPos <span style=color:#f92672>-</span> outFragmentPosition);
+        
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> diff <span style=color:#f92672>=</span> max(dot(norm, lightDir), <span style=color:#ae81ff>0.0</span>);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> diffuse <span style=color:#f92672>=</span> diff <span style=color:#f92672>*</span> lightColor;
+
+        color <span style=color:#f92672>=</span> (diffuse) <span style=color:#f92672>*</span> originColor;
+        gl_FragColor <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec4</span>(color, <span style=color:#ae81ff>1.0</span>);
+</code></pre></div><p>下面是仅有 diffuse 的效果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChatcc3bb10965e90395df18d9402f758243.png alt=diffuse></p><h3 id=镜面光照specular-lighting>镜面光照(Specular Lighting)</h3><p>镜面光照和人的观察方向有关，即物体的颜色会随着我们看的颜色而不同，像镜子反射光线一样。</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/basic_lighting_specular_theory.png alt=镜面光照></p><p>类似 diffuse，我们有视线的方向 （<code>eyeDir</code>），即观察方向和片段位置之差的归一化向量；反射反向（<code>reflectDir</code>），是由光线方向和法线方向决定，具体可以看代码：</p><p>fragment shader</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl>
+        <span style=color:#75715e>// Specular</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> eyeDir <span style=color:#f92672>=</span> normalize(eyePos <span style=color:#f92672>-</span> outFragmentPosition); <span style=color:#75715e>// 视线方向</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> reflectDir <span style=color:#f92672>=</span> reflect(<span style=color:#f92672>-</span>lightDir, norm); <span style=color:#75715e>// 光线反射的方向</span>
+        
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> spec <span style=color:#f92672>=</span> pow(max(dot(eyeDir, reflectDir), <span style=color:#ae81ff>0.0</span>), <span style=color:#ae81ff>32.0</span>);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> specular <span style=color:#f92672>=</span> specularStrength <span style=color:#f92672>*</span> spec <span style=color:#f92672>*</span> lightColor;
+
+        color <span style=color:#f92672>=</span> (specular) <span style=color:#f92672>*</span> originColor;
+        gl_FragColor <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec4</span>(color, <span style=color:#ae81ff>1.0</span>);
+</code></pre></div><p>此处需要注意：</p><ul><li><p><code>32.0</code> 代表了物体的发光值（<code>shiness</code>），该值代表了物体的反光能力，该值越大，光聚点越小（即散点越少）。</p></li><li><p><code>specularStrength</code> 是镜面光强度，为了防止光线反射过度夸张，此处设为 0.5</p></li></ul><p>最终实现的效果如下：光线聚集到黑色物体的一个点上反射，由于没有环境光和漫反射，所以看不到物体，只有一个聚光点</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChatb433ca356ac5ca5e2e9700b86efd8743.png alt=specular></p><p>有兴趣的可以调整一下 <code>shiness</code> 看看效果。</p><h3 id=完整的-shader-代码>完整的 shader 代码：</h3><p>vertex shader (Light.vsh)：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl><span style=color:#66d9ef>attribute</span> <span style=color:#66d9ef>vec3</span> position;
+<span style=color:#66d9ef>attribute</span> <span style=color:#66d9ef>vec3</span> normal;
+
+<span style=color:#66d9ef>uniform</span> mat4 modelMatrix;
+<span style=color:#66d9ef>uniform</span> mat4 viewMatrix;
+<span style=color:#66d9ef>uniform</span> mat4 projectionMatrix;
+
+<span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>vec3</span> outNormal; <span style=color:#75715e>// 输出的法向量</span>
+<span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>vec3</span> outFragmentPosition; <span style=color:#75715e>// 输出的片段位置</span>
+
+<span style=color:#66d9ef>void</span> main() {
+    
+    gl_Position <span style=color:#f92672>=</span> projectionMatrix <span style=color:#f92672>*</span> viewMatrix <span style=color:#f92672>*</span> modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(position, <span style=color:#ae81ff>1.0</span>);
+    outNormal <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec3</span>(modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(normal, <span style=color:#ae81ff>0.0</span>));
+    outFragmentPosition <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec3</span>(modelMatrix <span style=color:#f92672>*</span> <span style=color:#66d9ef>vec4</span>(position, <span style=color:#ae81ff>1.0</span>));
+}
+
+</code></pre></div><p>fragment shader（Light.fsh）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-glsl data-lang=glsl><span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> outNormal; <span style=color:#75715e>// 输出的法向量</span>
+<span style=color:#66d9ef>varying</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> outFragmentPosition; <span style=color:#75715e>// 输出的片段位置</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> originColor; <span style=color:#75715e>// 物体的颜色</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>int</span> needLight; <span style=color:#75715e>// 是否需要光照（光源不需要） If rendering &#34;Lamb&#34;, this value is 0; else 1;</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> lightColor; <span style=color:#75715e>// 灯的颜色</span>
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> ambientStrength; <span style=color:#75715e>// 环境光强度</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> lightPos; <span style=color:#75715e>// 灯的位置</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> eyePos; <span style=color:#75715e>// 摄像机（眼睛）的位置</span>
+
+<span style=color:#66d9ef>uniform</span> <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> specularStrength; <span style=color:#75715e>// 镜面光强度</span>
+
+<span style=color:#66d9ef>void</span> main() {
+    
+    <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> color;
+    
+    <span style=color:#66d9ef>if</span> (needLight <span style=color:#f92672>!=</span> <span style=color:#ae81ff>0</span>) { <span style=color:#75715e>// The Object, calculate the final color affected by light</span>
+        
+        <span style=color:#75715e>// Ambient</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> ambient <span style=color:#f92672>=</span> ambientStrength <span style=color:#f92672>*</span> lightColor;
+        
+        <span style=color:#75715e>// Diffuse</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> norm <span style=color:#f92672>=</span> normalize(outNormal);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> lightDir <span style=color:#f92672>=</span> normalize(lightPos <span style=color:#f92672>-</span> outFragmentPosition);
+        
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> diff <span style=color:#f92672>=</span> max(dot(norm, lightDir), <span style=color:#ae81ff>0.0</span>);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> diffuse <span style=color:#f92672>=</span> diff <span style=color:#f92672>*</span> lightColor;
+        
+        <span style=color:#75715e>// Specular</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> eyeDir <span style=color:#f92672>=</span> normalize(eyePos <span style=color:#f92672>-</span> outFragmentPosition); <span style=color:#75715e>// 视线方向</span>
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> reflectDir <span style=color:#f92672>=</span> reflect(<span style=color:#f92672>-</span>lightDir, norm); <span style=color:#75715e>// 光线反射的方向</span>
+        
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>float</span> spec <span style=color:#f92672>=</span> pow(max(dot(eyeDir, reflectDir), <span style=color:#ae81ff>0.0</span>), <span style=color:#ae81ff>32.0</span>);
+        <span style=color:#66d9ef>highp</span> <span style=color:#66d9ef>vec3</span> specular <span style=color:#f92672>=</span> specularStrength <span style=color:#f92672>*</span> spec <span style=color:#f92672>*</span> lightColor;
+        
+        
+        <span style=color:#75715e>// Combine all kind of colors</span>
+        color <span style=color:#f92672>=</span> (ambient <span style=color:#f92672>+</span> diffuse <span style=color:#f92672>+</span> specular) <span style=color:#f92672>*</span> originColor;
+        
+    } <span style=color:#66d9ef>else</span> { <span style=color:#75715e>// The &#34;Lamb&#34;,  use originColor</span>
+        
+        color <span style=color:#f92672>=</span> originColor;
+        
+    }
+    
+    gl_FragColor <span style=color:#f92672>=</span> <span style=color:#66d9ef>vec4</span>(color, <span style=color:#ae81ff>1.0</span>);
+    
+}
+</code></pre></div><h2 id=二完整流程>二、完整流程</h2><p>该 demo 选择绘制两个立方体，一个作为光源一个作为物体，大致的流程和 <a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/>画一个立方体</a> 一致，但是有如下需要注意的点：</p><h3 id=1-绘制两个立方体>1、 绘制两个立方体</h3><ul><li><p>需要有两个 <code>VAO</code>，分别作为 light 和 obj 的 VAO</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>GLuint _lightVAO, _objVAO;
+
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupVAOs</span> {
+    _lightVAO <span style=color:#f92672>=</span> [self createVAO];
+    _objVAO <span style=color:#f92672>=</span> [self createVAO];
+}
+</code></pre></div></li><li><p>需要两个 <code>ModelMatrix</code>，分别定义了 light 和 obj 的本地坐标变换 （ViewMatrix 和 ProjectionMatrix 使用同一个）</p><p>其中 light 的 ModelMatrix 是一直不变的；obj 的 ModelMatrix 是会不断更新旋转角度的</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+GLKMatrix4 _lightModelMatrix, _objModelMatrix, _viewMatrix, _projectionMatrix;
+
+<span style=color:#75715e>#pragma mark - Set up light Cube (By Model matrix)
+</span><span style=color:#75715e></span>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupLightCube</span> {
+      
+    GLKMatrix4 lightTranslation <span style=color:#f92672>=</span> GLKMatrix4MakeTranslation(_lightPosition.x,
+                                                            _lightPosition.y,
+                                                            _lightPosition.z);
+    GLKMatrix4 lightScale <span style=color:#f92672>=</span> GLKMatrix4MakeScale(_lightScale, _lightScale, _lightScale);
+      
+    _lightModelMatrix <span style=color:#f92672>=</span> GLKMatrix4Multiply(lightTranslation, lightScale);
+      
+}
+
+<span style=color:#75715e>#pragma mark - Rotate the Cube (By Model matrix)
+</span><span style=color:#75715e></span>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>rotateCube</span> {
+      
+    GLKMatrix4 objTranslation <span style=color:#f92672>=</span> GLKMatrix4MakeTranslation(_objPosition.x, _objPosition.y, _objPosition.z);
+    GLKMatrix4 objRotation <span style=color:#f92672>=</span> GLKMatrix4MakeRotation(GLKMathDegreesToRadians(_objRotateAngle), <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>);
+    GLKMatrix4 objScale <span style=color:#f92672>=</span> GLKMatrix4MakeScale(_objScale, _objScale, _objScale);
+      
+    <span style=color:#75715e>// 从后面读起：先 scale -&gt; 再 rotate -&gt; 最后 translate
+</span><span style=color:#75715e></span>    _objModelMatrix <span style=color:#f92672>=</span> GLKMatrix4Multiply(GLKMatrix4Multiply(objTranslation, objRotation), objScale);
+      
+    _objRotateAngle <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>;
+      
+    <span style=color:#66d9ef>if</span> (_objRotateAngle <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>360</span>) {
+        _objRotateAngle <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
+    }
+      
+}
+
+</code></pre></div></li><li><p>渲染两个 Cube</p><p>需要使用两个 <code>program</code>，分别对应 light 和 obj 的渲染程序，不过使用的是同一套的 shader，在具体 <code>render</code> 的时候，传入 <code>needLight</code> 来判断是否使用光照模型即可</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    <span style=color:#75715e>// Programs
+</span><span style=color:#75715e></span>    GLuint _lightProgram, _objProgram;
+</code></pre></div><p>渲染两个 cube</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render:</span> (CGSize)clearSize {
+  
+    <span style=color:#75715e>// 0. Bind the FBO &amp; Clear the FBO
+</span><span style=color:#75715e></span>      
+    glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
+    [self clearFBO: clearSize];
+      
+    <span style=color:#75715e>// 1. Render light
+</span><span style=color:#75715e></span>      
+    glUseProgram(_lightProgram);
+    glUniformMatrix4fv(_modelMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _lightModelMatrix.m);
+    glUniformMatrix4fv(_viewMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _viewMatrix.m);
+    glUniformMatrix4fv(_projectionMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _projectionMatrix.m);
+      
+    glUniform3f(_originColorUniformLoc, _lightColor.r, _lightColor.g, _lightColor.b); <span style=color:#75715e>// 物体颜色
+</span><span style=color:#75715e></span>    glUniform1i(_needLightUniformLoc, <span style=color:#ae81ff>0</span>); <span style=color:#75715e>// 是否需要光照
+</span><span style=color:#75715e></span>    glUniform3f(_lightColorUniformLoc, _lightColor.r, _lightColor.g, _lightColor.b); <span style=color:#75715e>// 光照颜色
+</span><span style=color:#75715e></span>    glUniform1f(_ambientStrengthUniformLoc, _lightAmbientStrength); <span style=color:#75715e>// 环境光强度
+</span><span style=color:#75715e></span>    glUniform1f(_specularStrengthUniformLoc, _specularStrength); <span style=color:#75715e>// 镜面光强度
+</span><span style=color:#75715e></span>    glUniform3f(_lightPosUniformLoc, _lightPosition.x, _lightPosition.y, _lightPosition.z); <span style=color:#75715e>// 光源的位置
+</span><span style=color:#75715e></span>    glUniform3f(_eyePosUniformLoc, _eyePostion.x, _eyePostion.y, _eyePostion.z); <span style=color:#75715e>// 眼睛（摄像机）的位置
+</span><span style=color:#75715e></span>      
+    glBindVertexArray(_lightVAO); <span style=color:#75715e>// 使用 VAO 的好处，就是一句 bind 来使用对应 VAO 即可
+</span><span style=color:#75715e></span>    glDrawArrays(GL_TRIANGLES, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(vertices) <span style=color:#f92672>/</span> <span style=color:#ae81ff>3</span>);
+      
+    <span style=color:#75715e>// 2. Render Object
+</span><span style=color:#75715e></span>      
+    glUseProgram(_objProgram);
+    glUniformMatrix4fv(_modelMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _objModelMatrix.m);
+    glUniformMatrix4fv(_viewMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _viewMatrix.m);
+    glUniformMatrix4fv(_projectionMatrixUniformLoc, <span style=color:#ae81ff>1</span>, GL_FALSE, _projectionMatrix.m);
+      
+    glUniform3f(_originColorUniformLoc, _objColor.r, _objColor.g, _objColor.b); <span style=color:#75715e>// 物体颜色
+</span><span style=color:#75715e></span>    glUniform1i(_needLightUniformLoc, <span style=color:#ae81ff>1</span>); <span style=color:#75715e>// 是否需要光照
+</span><span style=color:#75715e></span>    glUniform3f(_lightColorUniformLoc, _lightColor.r, _lightColor.g, _lightColor.b); <span style=color:#75715e>// 光照颜色
+</span><span style=color:#75715e></span>    glUniform1f(_ambientStrengthUniformLoc, _lightAmbientStrength); <span style=color:#75715e>// 环境光强度
+</span><span style=color:#75715e></span>    glUniform1f(_specularStrengthUniformLoc, _specularStrength); <span style=color:#75715e>// 镜面光强度
+</span><span style=color:#75715e></span>    glUniform3f(_lightPosUniformLoc, _lightPosition.x, _lightPosition.y, _lightPosition.z); <span style=color:#75715e>// 光源的位置
+</span><span style=color:#75715e></span>    glUniform3f(_eyePosUniformLoc, _eyePostion.x, _eyePostion.y, _eyePostion.z); <span style=color:#75715e>// 眼睛（摄像机）的位置
+</span><span style=color:#75715e></span>      
+    glBindVertexArray(_objVAO); <span style=color:#75715e>// 使用 VAO 的好处，就是一句 bind 来使用对应 VAO 即可
+</span><span style=color:#75715e></span>    glDrawArrays(GL_TRIANGLES, <span style=color:#ae81ff>0</span>, <span style=color:#66d9ef>sizeof</span>(vertices) <span style=color:#f92672>/</span> <span style=color:#ae81ff>3</span>);
+}
+</code></pre></div><ul><li><p>a、先 bind FBO & Clear FBO</p></li><li><p>b、渲染 light：</p><ul><li>选择 light 的 program</li><li>传入 light shader 的 uniforms （注意 <code>needLight</code> 传入 0）</li><li>选择 light 的 VAO</li><li><code>glDrawArrays</code> 画出 light 的 cube 到 FBO</li></ul></li><li><p>c、渲染 cube：</p><ul><li>选择 cube 的 program</li><li>传入 cube shader 的 uniforms （注意 <code>needLight</code> 传入 1）</li><li>选择 light 的 VAO</li><li><code>glDrawArrays</code> 画出 cube 的 cube 到 FBO</li></ul></li></ul></li></ul><h3 id=2-cube-的顶点和法线>2、 Cube 的顶点和法线</h3><p>之前对于 cube 的绘制是通过 8 个顶点来构造 6 个面（12 个三角形），但是在此处需要使用到法线，因此不使用 EBO 而是直接通过 36 个顶点构造 6 个面（每个面 6 个顶点）能更直观表达法线：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChat1ade44fa1089cea6a897a581bd811c6f.png alt=立方体></p><p>不使用 EBO （不复用顶点）的立方体定义如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> GLfloat vertices[] <span style=color:#f92672>=</span> {
+    
+    <span style=color:#75715e>// 正面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 右面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 背面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 左面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 上面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>   
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 下面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>};
+</code></pre></div><p>法线定义：始终垂直于每个面的直线。</p><p>在我们计算光照的过程中，我们需要让法线垂直于 6 个面，也可以说垂直于每一个顶点，而且方向是 <strong>指向 cube 外部的！！</strong></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> GLfloat normals[] <span style=color:#f92672>=</span> {
+    
+    <span style=color:#75715e>// 正面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    
+    <span style=color:#75715e>// 右面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 背面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    
+    <span style=color:#75715e>// 左面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 上面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 下面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+};
+</code></pre></div><h2 id=三总结>三、总结</h2><p>以上就是冯氏光照模型在 OpenGL ES 上的实现，具体看不懂的可以参考 demo 的实现，更重要的是，希望能通过自己去修改代码，比如只使用 specular 效果是怎么样的，比如光源移动物体不动的效果又是如何，修改一些强度参数发生什么影响等，这样可以更加加深我们对该光照模型的理解，同时在这个探索的过程中也能加深记忆。</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/opengl-es/>OpenGL ES</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f&text=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%2010%20%e5%85%89%e7%85%a7&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%2010%20%e5%85%89%e7%85%a7" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%2010%20%e5%85%89%e7%85%a7" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f&title=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%2010%20%e5%85%89%e7%85%a7" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fopengl-es%2fopengl-es-10-%25E5%2585%2589%25E7%2585%25A7%2f&description=OpenGL%20ES%20in%20iOS%20-%20OpenGL%20ES%20-%2010%20%e5%85%89%e7%85%a7" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>See also</h4><ul><li><a href=/post/blog/opengl-es/opengl-es-9-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84-yuv-%E6%95%B0%E6%8D%AE/>OpenGL ES in iOS - OpenGL ES - 9 渲染摄像头采集的 YUV 数据</a></li><li><a href=/post/blog/opengl-es/opengl-es-8-%E6%B8%B2%E6%9F%93%E6%91%84%E5%83%8F%E5%A4%B4%E9%87%87%E9%9B%86%E7%9A%84%E6%95%B0%E6%8D%AE/>OpenGL ES in iOS - 8. 渲染摄像头采集数据（CVOpenGLESTextureCacheRef）</a></li><li><a href=/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/glgetuniformlocation-%E8%BF%94%E5%9B%9E-1/>OpenGL ES 获取 Uniform 的位置 glGetUniformLocation 返回 -1</a></li><li><a href=/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/>OpenGL ES in iOS - 7 画一个立方体</a></li><li><a href=/post/blog/opengl-es/opengl-es-6-%E4%B8%89%E7%BB%B4%E5%8F%98%E6%8D%A2/>OpenGL ES in iOS - 6 三维变换</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/ffmpeg%E8%BD%AC%E6%8D%A2%E8%A7%86%E9%A2%91%E6%A0%BC%E5%BC%8Fmov-mp4%E8%BD%ACgif/ data-toggle=tooltip data-placement=top title=FFMPEG转换视频格式（mov/mp4转gif）>&larr; Previous Post</a></li></ul><span id=/post/blog/opengl-es/opengl-es-10-%E5%85%89%E7%85%A7/ class=leancloud_visitors data-flag-title="OpenGL ES in iOS - OpenGL ES - 10 光照"><span class=post-meta-item-text>文章阅读量</span>
+<span class=leancloud-visitors-count>1000000</span><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted"><a href=https://gohugo.io>Hugo v0.69.2</a> powered &nbsp;&bull;&nbsp; Theme <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> adapted from <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
