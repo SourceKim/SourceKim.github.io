@@ -5,7 +5,18 @@
 <button class="pswp__button pswp__button--share" title=Share></button>
 <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=page-heading><h1>Kim's Blog</h1><hr class=small><span class=page-subheading>iOS / Metal / OpenGL</span></div></div></div></div></div></header><div role=main class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=posts-list><article class=post-preview><a href=https://www.uiimage.com/post/blog/ios/kvokvc/><h2 class=post-title>iOS 的 KVO & KVC 本质</h2></a><p class=post-meta><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on January 1, 0001
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=page-heading><h1>Kim's Blog</h1><hr class=small><span class=page-subheading>iOS / Metal / OpenGL</span></div></div></div></div></div></header><div role=main class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=posts-list><article class=post-preview><a href=https://www.uiimage.com/post/blog/ios/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/><h2 class=post-title></h2></a><p class=post-meta><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on January 1, 0001
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;1&nbsp;minutes
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;135&nbsp;words
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></p><div class=post-entry>设计模式 单例模式 在 APP 的声明周期之内只被一个实例对象
+实现 @implementation MySingleton static MySingleton *manager = nil; + (instancetype)shared { if (manager == nil) { static dispatch_once_t onceToken; dispatch_once(&onceToken, ^{ manager = [[MySingleton alloc] init]; }); } return manager; } + (instancetype)allocWithZone:(struct _NSZone *)zone { return [MySingleton shared]; } 这样调用 alloc 也是获得静态的单例对象
+优点 跨模块
+资源共享
+缺点 工厂模式 通过定义工厂类，可以生成对象。
+一般用来生成复杂对象。
+优点： 高拓展性，新建一个方法即可拓展一个新的构造复杂实例的方法
+去除了业务和对象细节的耦合
+<a href=https://www.uiimage.com/post/blog/ios/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/ class=post-read-more>[Read More]</a></div></article><article class=post-preview><a href=https://www.uiimage.com/post/blog/ios/kvokvc/><h2 class=post-title>iOS 的 KVO & KVC 本质</h2></a><p class=post-meta><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;Posted on January 1, 0001
 &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;1&nbsp;minutes
 &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;189&nbsp;words
 &nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></p><div class=post-entry><ul><li><p>KVO：监听属性的变化</p></li><li><p>KVC：属性（成员变量）设值</p></li></ul><a href=https://www.uiimage.com/post/blog/ios/kvokvc/ class=post-read-more>[Read More]</a></div><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
