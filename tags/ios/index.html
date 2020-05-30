@@ -42,13 +42,8 @@
 <a href=https://www.uiimage.com//tags/opengl-es/>OpenGL ES</a>&nbsp;
 <a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div></article><article class=post-preview><a href=https://www.uiimage.com/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/glgetuniformlocation-%E8%BF%94%E5%9B%9E-1/><h2 class=post-title>OpenGL ES 获取 Uniform 的位置 glGetUniformLocation 返回 -1</h2></a><p class=post-meta><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 May 18, 2020
 &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;1&nbsp;分钟
-&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;134&nbsp;个字
-&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></p><div class=post-entry>uniform sampler2D lumaTexture; uniform sampler2D chromaTexture; uniform highp mat3 YUV_To_RGB_Matrix; uniform highp vec3 YUV_Translation; varying highp vec2 outTexCoor; void main() { highp vec3 yuv, rgb; yuv.r = texture2D(lumaTexture, outTexCoor).r; yuv.gb = texture2D(lumaTexture, outTexCoor).rg; rgb = YUV_To_RGB_Matrix * (yuv + YUV_Translation); gl_FragColor = vec4(rgb, 1.0); } 通过 glGetUniformLocation(_glProgram, "chromaTexture"); 返回一直是 -1
-一番搜索才发现，原来是自己复制粘贴的笔误，将 chromaTexture 写成了 lumaTexture，即 chromaTexture 根本没有在 shader 中使用！
-当该 uniform 没有被使用的时候，其 loction 就是 -1
-另外：
-没有被使用也包括，如果这个 uniform 没有对 gl_FragColor 产生影响，也认为 没有被使用。
-<a href=https://www.uiimage.com/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/glgetuniformlocation-%E8%BF%94%E5%9B%9E-1/ class=post-read-more>[阅读全文]</a></div><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;147&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></p><div class=post-entry><p>OpenGL ES 获取 Uniform 的位置 <code>glGetUniformLocation</code> 返回 -1 是因为某个 uniform 没有被使用，包括 <strong>没有对输出的结果产生影响</strong> 也被认为没有被使用。</p><a href=https://www.uiimage.com/post/blog/%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/glgetuniformlocation-%E8%BF%94%E5%9B%9E-1/ class=post-read-more>[阅读全文]</a></div><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
 <a href=https://www.uiimage.com//tags/ios%E5%BC%80%E5%8F%91%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/>iOS开发常见问题</a>&nbsp;</div></article><article class=post-preview><a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-7-%E7%94%BB%E4%B8%80%E4%B8%AA%E7%AB%8B%E6%96%B9%E4%BD%93/><h2 class=post-title>OpenGL ES in iOS - 7 画一个立方体</h2></a><p class=post-meta><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 May 16, 2020
 &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;3&nbsp;分钟
 &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;509&nbsp;个字
