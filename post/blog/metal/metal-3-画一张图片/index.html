@@ -1,0 +1,195 @@
+<!doctype html><html lang=zh itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>Metal - 3 画一个图片 - Kim's Blog</title><meta name=description content="本文涉及到 Metal 的主要知识：
+
+
+
+纹理加载 - 将 UIImage 转化成 Metal 纹理 id<MTLTexture>
+
+
+
+
+纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）
+
+
+
+
+纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色
+
+
+
+
+在 Metal 中使用索引缓冲区 IndexBuffer 绘制图元
+
+
+
+具体代码可以访问 仓库 的 2. 画一张图片。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87\/","name":"Metal 3 画一个图片"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"Metal - 3 画一个图片","description":"本文涉及到 Metal 的主要知识：\n   纹理加载 - 将 UIImage 转化成 Metal 纹理 id\x26lt;MTLTexture\x26gt;    纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）    纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色    在 Metal 中使用索引缓冲区 IndexBuffer 绘制图元    具体代码可以访问 仓库 的 2. 画一张图片。\n","inLanguage":"zh","wordCount":590,"datePublished":"2020-06-02T23:00:00","dateModified":"2020-06-02T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, Metal, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="Metal - 3 画一个图片"><meta property="og:description" content="本文涉及到 Metal 的主要知识：
+
+
+
+纹理加载 - 将 UIImage 转化成 Metal 纹理 id<MTLTexture>
+
+
+
+
+纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）
+
+
+
+
+纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色
+
+
+
+
+在 Metal 中使用索引缓冲区 IndexBuffer 绘制图元
+
+
+
+具体代码可以访问 仓库 的 2. 画一张图片。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="Metal - 3 画一个图片"><meta name=twitter:description content="本文涉及到 Metal 的主要知识：
+
+
+
+纹理加载 - 将 UIImage 转化成 Metal 纹理 id<MTLTexture>
+
+
+
+
+纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）
+
+
+
+
+纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色
+
+
+
+
+在 Metal 中使用索引缓冲区 IndexBuffer 绘制图元
+
+
+
+具体代码可以访问 仓库 的 2. …"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>切换导航</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>Metal - 3 画一个图片</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 June 2, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;3&nbsp;分钟
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;590&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><aside class=toc-article><nav id=TableOfContents><ul><li><a href=#一加载纹理-uiimage---idmtltexture>一、加载纹理 <code>UIImage</code> -> <code>id&lt;MTLTexture></code></a></li><li><a href=#二纹理上传>二、纹理上传</a></li><li><a href=#三纹理绘制>三、纹理绘制</a></li><li><a href=#四使用顶点索引ebo-或叫-iboindexbuffer-绘制图元>四、使用顶点索引（EBO 或叫 IBO）<code>IndexBuffer</code> 绘制图元</a></li><li><a href=#总结>总结</a></li></ul></nav></aside><article role=main class=blog-post><p>本文涉及到 Metal 的主要知识：</p><ul><li><ol><li>纹理加载 - 将 <code>UIImage</code> 转化成 Metal 纹理 <code>id&lt;MTLTexture></code></li></ol></li><li><ol start=2><li>纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）</li></ol></li><li><ol start=3><li>纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色</li></ol></li><li><ol start=3><li>在 Metal 中使用索引缓冲区 <code>IndexBuffer</code> 绘制图元</li></ol></li></ul><p>具体代码可以访问 <a href=https://github.com/SourceKim/MetalTest>仓库</a> 的 <code>2. 画一张图片</code>。</p><p>本文最终效果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChat7e3d2a848a37efdc364f6f42b495caa9.png alt="Metal - 3 画一个图片"></p><h2 id=一加载纹理-uiimage---idmtltexture>一、加载纹理 <code>UIImage</code> -> <code>id&lt;MTLTexture></code></h2><blockquote><p>相关代码在 <code>src/utils/MetalUtils.m</code> 中</p></blockquote><p>需要借助 <code>Core Graphics</code> 将图片转成 <code>uint8 *</code> 图片数据，再转成 <code>MTLTexture</code></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>+ (nullable <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span>)<span style=color:#a6e22e>loadImageTexture:</span> (UIImage <span style=color:#f92672>*</span>)image
+                            <span style=color:#a6e22e>device:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLDevice<span style=color:#f92672>&gt;</span>)device {
+    
+    CGImageRef cgImage <span style=color:#f92672>=</span> image.CGImage;
+    <span style=color:#66d9ef>if</span> (cgImage <span style=color:#f92672>==</span> nil) <span style=color:#66d9ef>return</span> nil;
+    <span style=color:#66d9ef>return</span> [self loadImageTexture_CGImage: cgImage device: device];
+}
+
++ (nullable <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span>)<span style=color:#a6e22e>loadImageTexture_CGImage:</span> (CGImageRef)cgImage
+                                    <span style=color:#a6e22e>device:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLDevice<span style=color:#f92672>&gt;</span>)device {
+    
+    size_t width <span style=color:#f92672>=</span> CGImageGetWidth(cgImage);
+    size_t height <span style=color:#f92672>=</span> CGImageGetHeight(cgImage);
+    
+    CGRect rect <span style=color:#f92672>=</span> CGRectMake(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, width, height);
+    
+    size_t dataLen <span style=color:#f92672>=</span> width <span style=color:#f92672>*</span> height <span style=color:#f92672>*</span> <span style=color:#ae81ff>4</span> <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(uint8_t);
+    uint8_t <span style=color:#f92672>*</span>imageData <span style=color:#f92672>=</span> malloc(dataLen);
+    CGColorSpaceRef colorSpace <span style=color:#f92672>=</span> CGColorSpaceCreateDeviceRGB();
+    CGContextRef ctx <span style=color:#f92672>=</span> CGBitmapContextCreate(imageData,
+                                             width,
+                                             height,
+                                             <span style=color:#ae81ff>8</span>,
+                                             width <span style=color:#f92672>*</span> <span style=color:#ae81ff>4</span>,
+                                             colorSpace,
+                                             kCGImageByteOrderDefault <span style=color:#f92672>|</span>
+                                             kCGImageAlphaPremultipliedLast);
+    CGContextTranslateCTM(ctx, <span style=color:#ae81ff>0</span>, height); <span style=color:#75715e>// 所有内容下移 height
+</span><span style=color:#75715e></span>    CGContextScaleCTM(ctx, <span style=color:#ae81ff>1.0f</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1.0f</span>); <span style=color:#75715e>// 翻转
+</span><span style=color:#75715e></span>    CGContextClearRect(ctx, rect);
+    CGContextDrawImage(ctx, rect, cgImage);
+    
+    MTLTextureDescriptor <span style=color:#f92672>*</span>texDescriptor <span style=color:#f92672>=</span> [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: MTLPixelFormatRGBA8Unorm width: width height: height mipmapped: false];
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span> texture <span style=color:#f92672>=</span> [device newTextureWithDescriptor: texDescriptor];
+    
+    <span style=color:#66d9ef>if</span> (texture <span style=color:#f92672>==</span> nil) <span style=color:#66d9ef>return</span> nil;
+    
+    [texture replaceRegion: MTLRegionMake2D(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, width, height) mipmapLevel: <span style=color:#ae81ff>0</span> withBytes: imageData bytesPerRow: width <span style=color:#f92672>*</span> <span style=color:#ae81ff>4</span>];
+    
+    free(imageData);
+    CGColorSpaceRelease(colorSpace);
+    CGContextRelease(ctx);
+    
+    <span style=color:#66d9ef>return</span> texture;
+    
+}
+</code></pre></div><p>具体步骤如下：</p><ul><li><p>1、先构造一个 <code>CGContext</code>，里面存我们需要的位图（Bitmap）数据</p></li><li><p>2、将 <code>CGContext</code> 翻转</p><p>因为 <code>Core Graphics</code> 的坐标系和 <code>Metal</code> 坐标系的 Y 是翻转的</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    CGContextTranslateCTM(ctx, <span style=color:#ae81ff>0</span>, height); <span style=color:#75715e>// 所有内容下移 height
+</span><span style=color:#75715e></span>    CGContextScaleCTM(ctx, <span style=color:#ae81ff>1.0f</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1.0f</span>); <span style=color:#75715e>// 翻转
+</span></code></pre></div></li><li><p>3、将图片 “绘制（Draw）” 到 <code>CGContext</code> 上</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    CGContextDrawImage(ctx, rect, cgImage);
+</code></pre></div><p>这样 <code>CGContext</code> 就存着当前的图片数据了，保存在上下文初始化使用的 <code>imageData</code> 中</p></li><li><p>4、构造 Metal 的纹理描述对象（<code>MTLTextureDescriptor</code>）</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    MTLTextureDescriptor <span style=color:#f92672>*</span>texDescriptor <span style=color:#f92672>=</span> [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: MTLPixelFormatRGBA8Unorm width: width height: height mipmapped: false];
+</code></pre></div></li><li><p>5、从 <code>MTLDevice</code> 中构造一个 2D 的 <strong>空的</strong> 纹理对象（<code>id&lt;MTLTexture></code>）</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span> texture <span style=color:#f92672>=</span> [device newTextureWithDescriptor: texDescriptor];
+</code></pre></div></li><li><p>6、将图片数据 <strong>塞入</strong> 上面的空的纹理对象中，使用 <code>replaceRegion:</code> Api</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    [texture replaceRegion: MTLRegionMake2D(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, width, height) mipmapLevel: <span style=color:#ae81ff>0</span> withBytes: imageData bytesPerRow: width <span style=color:#f92672>*</span> <span style=color:#ae81ff>4</span>];
+</code></pre></div></li></ul><p>这样，就能获得一个 <strong>存有从 Core Graphics 中转换得来的图片数据的 Metal 纹理</strong> 了。</p><h2 id=二纹理上传>二、纹理上传</h2><p>我们的纹理需要在 Fragment Shader 被采样和为片元的颜色赋值，因此需要将 <strong>纹理上传到 Fragment Shader 中</strong></p><p>Metal 的纹理上传非常简单：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    [encoder setFragmentTexture: _texutre
+                        atIndex: <span style=color:#ae81ff>0</span>];
+</code></pre></div><p>这里的 <code>_texture</code> 就是我们 <code>一、加载纹理</code> 中获得到 <code>id&lt;MTLTexture></code> 对象。</p><h2 id=三纹理绘制>三、纹理绘制</h2><p>纹理绘制，实际上是为片元在对应的位置对纹理进行采样，然后赋值给该片元的颜色。</p><p>着色器 <code>DrawImage.metal</code>:</p><pre><code class=language-hlsl data-lang=hlsl>typedef struct
+{
+    float4 position [[position]];
+    float2 texCoor;
+
+} VertexOut;
+
+vertex VertexOut
+DrawImageVertexShader(
+                      uint vertexID [[ vertex_id ]],
+                      constant float4 *position [[ buffer(0) ]],
+                      constant float2 *texCoor [[ buffer(1) ]]
+                      ) {
+    VertexOut out;
+    
+    out.position = position[vertexID];
+    out.texCoor = texCoor[vertexID];
+    
+    return out;
+}
+
+fragment float4
+DrawImageFragmentShader(
+                        VertexOut in [[ stage_in ]],
+                        texture2d&lt;float, access::sample&gt; tex [[ texture(0) ]]
+                        ) {
+    constexpr sampler texSampler;
+    float4 color = tex.sample(texSampler, in.texCoor);
+    return color;
+}
+</code></pre><p>在上一步上传的纹理在 Fragment Shader 中这样接收</p><pre><code class=language-hlsl data-lang=hlsl>texture2d&lt;float, access::sample&gt; tex [[ texture(0) ]]
+</code></pre><ul><li><p><code>float</code> 代表的是纹理值的类型</p><p>如果使用半精度浮点数，使用 <code>half</code></p></li><li><p><code>access::sample</code> 代表访问权限</p><p>有如下枚举值：</p><ul><li>sample 使用采样器（sampler）访问</li><li>read 只读</li><li>write 只写</li><li>read_write 可读可写</li></ul></li></ul><p><code>[[ texture(0) ]]</code> 代表在上传的时候 index 参数为 0，这点和 buffer 一致。</p><p>在 Metal 着色语言中，采样可以通过采样器，可以通过外部传入，也可以在 shader 中声明</p><pre><code class=language-hlsl data-lang=hlsl>    constexpr sampler texSampler;
+</code></pre><p>采样只需要调用 texture 的 <code>sample</code> 方法即可，第一个参数为采样器，第二个参数为采样的位置（即 <strong>纹理坐标</strong>）：</p><pre><code class=language-hlsl data-lang=hlsl>    float4 color = tex.sample(texSampler, in.texCoor);
+</code></pre><p>另外，由于纹理坐标需要插值处理，因此需要将其设置为 Vertex Shader 的输出（返回值），及 Fragment Shader 的输入（<code>[[ stage_in ]]</code>），因此将其定义到 <code>VertexOut</code> 结构体中：</p><pre><code class=language-hlsl data-lang=hlsl>typedef struct
+{
+    float4 position [[position]];
+    float2 texCoor;
+
+} VertexOut;
+</code></pre><p>至此，就在 shader 中完成了对纹理的采样，并且输出到了对应位置的片元中。</p><h2 id=四使用顶点索引ebo-或叫-iboindexbuffer-绘制图元>四、使用顶点索引（EBO 或叫 IBO）<code>IndexBuffer</code> 绘制图元</h2><p>在 <a href=https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/>上一篇文章 2 画一个三角形</a> 中，我们是直接进行了图元的绘制：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    [encoder drawPrimitives: MTLPrimitiveTypeTriangle
+                vertexStart: <span style=color:#ae81ff>0</span>
+                vertexCount: <span style=color:#ae81ff>3</span>];
+</code></pre></div><p>但是这次我们使用顶点索引缓冲区 <code>IndexBuffer</code> 绘制图元。</p><ul><li><p>1、首先需要构造一个 <code>IndexBuffer</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>UInt32</span> indices[] <span style=color:#f92672>=</span> {
+        <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>,
+        <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>2</span>
+    };
+    _indexBuffer <span style=color:#f92672>=</span> [_device newBufferWithBytes: indices
+                                    length: <span style=color:#66d9ef>sizeof</span>(indices)
+                                   options: MTLResourceStorageModeShared];
+</code></pre></div><p>前面也介绍过，<code>MTLBuffer</code> 是用来存储自己定义的数据类型。这里我们使用它来保存我们的顶点数据，因为后续绘制的时候需要用到 <code>MTLBuffer</code>，因此需要构造它。</p><p>有 <code>options</code> 参数是用来指明该 Buffer 的用处，有如下的选项：</p><ul><li><p><code>MTLResourceStorageModeShared</code> 该资源可以被 CPU 和 GPU 一起访问，内存只有一份</p></li><li><p><code>MTLResourceStorageModeManaged</code> 该资源在 CPU 和 GPU 各自有一份 copy，有任何修改需要显式地去同步双方</p></li><li><p><code>MTLResourceStorageModePrivate</code> 该资源 <strong>仅</strong> 能被 GPU 访问</p></li><li><p><code>MTLResourceStorageModeMemoryless</code> 该资源 <strong>仅</strong> 能被 GPU 访问，而且仅仅是在渲染的过程才暂时存在（即渲染后会被销毁）</p></li></ul><p>注意：<strong>对于 Buffer 而言，CPU 是一定能被访问的，因此只能使用 <code>MTLResourceStorageModeShared</code> 或 <code>MTLResourceStorageModeManaged</code> 之一</strong>！！</p></li><li><p>2、在绘制图元的时候传入该 buffer</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    [encoder drawIndexedPrimitives: MTLPrimitiveTypeTriangleStrip
+                        indexCount: <span style=color:#ae81ff>6</span>
+                        indexType: MTLIndexTypeUInt32
+                    indexBuffer: _indexBuffer
+                indexBufferOffset: <span style=color:#ae81ff>0</span>];
+</code></pre></div><p>参数释义：</p><ul><li><p><code>primitiveType</code> 图元类型</p></li><li><p><code>indexCount</code> 索引数量</p></li><li><p><code>indexType</code> 索引类型，上面的索引数据我定义为了 <code>UInt32</code> 的数组，因此这里使用 <code>MTLIndexTypeUInt32</code></p></li><li><p><code>indexBuffer</code> 第 1 步构建的 buffer</p></li><li><p><code>indexBufferOffset</code> 索引开始读取的字节偏移量 （<strong>必须是 4 个字节对齐的！</strong>），我们这里从 0 字节开始读，因此传入 0 即可。</p></li></ul></li></ul><h2 id=总结>总结</h2><p>至此，就完成了纹理上传绘制，以及使用顶点缓冲的绘制，其他的步骤和 <a href=https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/>上一篇文章 2 画一个三角形</a> 大同小异，可以对照代码再看看，以及自己做一些修改。</p><p>可以看得出来，相比于 OpenGL ES 各种句柄的 bind，Metal 的面向对象做得非常好，除了 shader 之外，大多时候我们都是在对对象进行操作，因此代码的逻辑也更加清晰，后期更容易维护，而已性能更是有过之而无不及。</p><p>不过跨平台能力和中文资料的缺失仍然是硬伤。</p><p>共勉，加油！</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/metal/>Metal</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f&text=Metal%20-%203%20%e7%94%bb%e4%b8%80%e4%b8%aa%e5%9b%be%e7%89%87&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f&title=Metal%20-%203%20%e7%94%bb%e4%b8%80%e4%b8%aa%e5%9b%be%e7%89%87" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f&title=Metal%20-%203%20%e7%94%bb%e4%b8%80%e4%b8%aa%e5%9b%be%e7%89%87" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f&title=Metal%20-%203%20%e7%94%bb%e4%b8%80%e4%b8%aa%e5%9b%be%e7%89%87" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-3-%25E7%2594%25BB%25E4%25B8%2580%25E5%25BC%25A0%25E5%259B%25BE%25E7%2589%2587%2f&description=Metal%20-%203%20%e7%94%bb%e4%b8%80%e4%b8%aa%e5%9b%be%e7%89%87" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>也可以看看</h4><ul><li><a href=/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/>Metal - 2 画一个三角形</a></li><li><a href=/post/blog/opengl-es/opengl-es-13-%E6%B7%B7%E5%90%88blend/>OpenGL ES in iOS - OpenGL ES - 13 混合 blending</a></li><li><a href=/post/blog/metal/metal-1-%E6%A6%82%E8%BF%B0/>Metal - 1 概述</a></li><li><a href=/post/blog/opengl-es/opengl-es-12-%E5%AE%9E%E6%88%98%E6%B6%82%E9%B8%A6%E7%BB%98%E7%94%BB%E6%9D%BF/>OpenGL ES in iOS - OpenGL ES - 12 实战涂鸦绘画板</a></li><li><a href=/post/blog/opengl-es/opengl-es-11.-%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93/>OpenGL ES in iOS - OpenGL ES - 11 渲染流程总结</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/ data-toggle=tooltip data-placement=top title="Metal - 2 画一个三角形">&larr; 前一篇</a></li></ul><span id=/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/ class=leancloud_visitors data-flag-title="Metal - 3 画一个图片"><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted">由 <a href=https://gohugo.io>Hugo v0.69.2</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> 移植自 <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>

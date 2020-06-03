@@ -1,4 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Metal on Kim's Blog</title><link>https://www.uiimage.com/tags/metal/</link><description>Recent content in Metal on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Fri, 29 May 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/metal/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 1 概述</title><link>https://www.uiimage.com/post/blog/metal/metal-1-%E6%A6%82%E8%BF%B0/</link><pubDate>Fri, 29 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-1-%E6%A6%82%E8%BF%B0/</guid><description>&lt;p>Metal 是苹果推出专用的与 &lt;strong>GPU 沟通的框架&lt;/strong>，类似于 OpenGL ES，但是 OpenGL ES 苹果明确说明在 iOS 12 已经被弃用了，虽然现在还能使用，但是不再为其进行更新了，也指不定哪个新系统会直接不让使用了。&lt;/p>
-&lt;p>因此，现在学习 Metal，对于 iOS 音视频方面开发有一定的前瞻性。&lt;/p></description></item><item><title>Metal - 2 画一个三角形</title><link>https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</link><pubDate>Fri, 29 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</guid><description>&lt;p>本篇文章的目标是使用 Metal 渲染一个 &lt;strong>渐变色三角形&lt;/strong>。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Metal on Kim's Blog</title><link>https://www.uiimage.com/tags/metal/</link><description>Recent content in Metal on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Tue, 02 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/metal/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 3 画一个图片</title><link>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</link><pubDate>Tue, 02 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</guid><description>&lt;p>本文涉及到 Metal 的主要知识：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;ol>
+&lt;li>纹理加载 - 将 &lt;code>UIImage&lt;/code> 转化成 Metal 纹理 &lt;code>id&amp;lt;MTLTexture&amp;gt;&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>
+&lt;ol start="2">
+&lt;li>纹理上传 - 将纹理上传到 GPU（Metal 渲染管线）&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>
+&lt;ol start="3">
+&lt;li>纹理绘制 - 使用 shader 完成纹理采样和输出到片元颜色&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>
+&lt;ol start="3">
+&lt;li>在 Metal 中使用索引缓冲区 &lt;code>IndexBuffer&lt;/code> 绘制图元&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul>
+&lt;p>具体代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>2. 画一张图片&lt;/code>。&lt;/p></description></item><item><title>Metal - 2 画一个三角形</title><link>https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</link><pubDate>Fri, 29 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-2-%E7%94%BB%E4%B8%80%E4%B8%AA%E4%B8%89%E8%A7%92%E5%BD%A2/</guid><description>&lt;p>本篇文章的目标是使用 Metal 渲染一个 &lt;strong>渐变色三角形&lt;/strong>。&lt;/p>
 &lt;p>可以了解到 Metal 和 Render 相关 Api 的基本使用。&lt;/p>
-&lt;p>具体代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>1. 三角形&lt;/code>。&lt;/p></description></item></channel></rss>
+&lt;p>具体代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>1. 三角形&lt;/code>。&lt;/p></description></item><item><title>Metal - 1 概述</title><link>https://www.uiimage.com/post/blog/metal/metal-1-%E6%A6%82%E8%BF%B0/</link><pubDate>Thu, 28 May 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-1-%E6%A6%82%E8%BF%B0/</guid><description>&lt;p>Metal 是苹果推出专用的与 &lt;strong>GPU 沟通的框架&lt;/strong>，类似于 OpenGL ES，但是 OpenGL ES 苹果明确说明在 iOS 12 已经被弃用了，虽然现在还能使用，但是不再为其进行更新了，也指不定哪个新系统会直接不让使用了。&lt;/p>
+&lt;p>因此，现在学习 Metal，对于 iOS 音视频方面开发有一定的前瞻性。&lt;/p></description></item></channel></rss>
