@@ -1,4 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>iOS on Kim's Blog</title><link>https://www.uiimage.com/tags/ios/</link><description>Recent content in iOS on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Tue, 02 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/ios/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 3 画一个图片</title><link>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</link><pubDate>Tue, 02 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</guid><description>&lt;p>本文涉及到 Metal 的主要知识：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>iOS on Kim's Blog</title><link>https://www.uiimage.com/tags/ios/</link><description>Recent content in iOS on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Wed, 03 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/ios/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 4 纹理采样参数</title><link>https://www.uiimage.com/post/blog/metal/metal-4-%E7%BA%B9%E7%90%86%E9%87%87%E6%A0%B7%E5%8F%82%E6%95%B0/</link><pubDate>Wed, 03 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-4-%E7%BA%B9%E7%90%86%E9%87%87%E6%A0%B7%E5%8F%82%E6%95%B0/</guid><description>&lt;p>在 Metal 中进行纹理采样的时候，我们可以使用参数去控制一些特殊情况，比如：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>1、当纹理坐标超过纹理坐标的位置如何处理？&lt;/p>
+&lt;ul>
+&lt;li>MTLSamplerAddressModeClampToEdge&lt;/li>
+&lt;li>MTLSamplerAddressModeRepeat&lt;/li>
+&lt;li>MTLSamplerAddressModeMirrorRepeat&lt;/li>
+&lt;li>MTLSamplerAddressModeClampToZero&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>2、使用 mipmap 提升缓存命中率的时候采用什么算法？&lt;/p>
+&lt;ul>
+&lt;li>MTLSamplerMipFilterNotMipmapped&lt;/li>
+&lt;li>MTLSamplerMipFilterNearest&lt;/li>
+&lt;li>MTLSamplerMipFilterLinear&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>通过将这些参数值设置到我们的 &lt;strong>采样器 （&lt;code>sampler&lt;/code> 或叫 &lt;code>MTLSamplerState&lt;/code>）&lt;/strong> 中，然后在 shader 中对纹理采样的时候应该即可。&lt;/p>
+&lt;p>具体代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>3. 纹理采样参数详解&lt;/code>&lt;/p></description></item><item><title>Metal - 3 画一个图片</title><link>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</link><pubDate>Tue, 02 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-3-%E7%94%BB%E4%B8%80%E5%BC%A0%E5%9B%BE%E7%89%87/</guid><description>&lt;p>本文涉及到 Metal 的主要知识：&lt;/p>
 &lt;ul>
 &lt;li>
 &lt;ol>
