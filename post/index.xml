@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Kim's Blog</title><link>https://www.uiimage.com/post/</link><description>Recent content in Posts on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Sun, 07 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 6 三维变换</title><link>https://www.uiimage.com/post/blog/metal/metal-6-three-dimentions-transformation/</link><pubDate>Sun, 07 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-6-three-dimentions-transformation/</guid><description>&lt;p>本章将介绍 Metal 三维变换相关，主要是 MVP 矩阵（Model / View / Projection），最终通过不断地让 &lt;strong>摄像头围绕 2D 图片移动&lt;/strong>，实现图片旋转。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Kim's Blog</title><link>https://www.uiimage.com/post/</link><description>Recent content in Posts on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Mon, 08 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 7 旋转的立方体</title><link>https://www.uiimage.com/post/blog/metal/metal-7-rotatingcube/</link><pubDate>Mon, 08 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-7-rotatingcube/</guid><description>&lt;p>本文的目的是使用 Metal 实现一个 &lt;strong>旋转的立方体&lt;/strong>。&lt;/p>
+&lt;p>相关知识点：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用 Metal 画立方体（使用顶点索引 &lt;code>EBO&lt;/code> 实现共享顶点）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>使用 &lt;code>MetalMatrix&lt;/code> 逐帧旋转 model 矩阵&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Metal 深度测试，使用 &lt;code>MTLDepthStencilState&lt;/code> 协议设置深度信息&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>完整代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>6. 旋转的立方体&lt;/code>。&lt;/p></description></item><item><title>Metal - 6 三维变换</title><link>https://www.uiimage.com/post/blog/metal/metal-6-three-dimentions-transformation/</link><pubDate>Sun, 07 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-6-three-dimentions-transformation/</guid><description>&lt;p>本章将介绍 Metal 三维变换相关，主要是 MVP 矩阵（Model / View / Projection），最终通过不断地让 &lt;strong>摄像头围绕 2D 图片移动&lt;/strong>，实现图片旋转。&lt;/p>
 &lt;p>具体代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>5. 三维变换&lt;/code>。&lt;/p>
 &lt;p>另外因为 Metal 中没有 &lt;code>GLKMatrix&lt;/code> 类直接构造变换矩阵，因此使用到的是自己封装的 &lt;a href="https://github.com/SourceKim/MetalMatrix">MetalMatrix&lt;/a> 工具帮忙构建 MVP 矩阵。&lt;/p></description></item><item><title>Metal 编译错误 CompileMetalFile XXX, fatal error: 'XXX.h' file not found</title><link>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</link><pubDate>Sun, 07 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</guid><description>&lt;p>在编译 Metal 文件的时候出现头文件找不到的问题。&lt;/p>
 &lt;p>报错信息：&lt;/p>
