@@ -1,0 +1,158 @@
+<!doctype html><html lang=zh itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef） - Kim's Blog</title><meta name=description content="本文的目的是 使用 Metal 渲染摄像头采集的 YUV（实际上是 YCbCr） 数据，关键会使用到 CVMetalTextureCacheRef 类，将摄像头采集到的 CMSampleBuffer 转换成 Metal 的纹理，在 shader 中 转换成 RGBA 格式 ，渲染上屏。
+完整代码可以访问 仓库 的 8. 渲染摄像头采集的 YUV 数据。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-9-render-camera-yuv-by-texture-cache\/","name":"Metal 9 渲染摄像头采集的 y u v( y cb cr) 数据（ c v metal texture cache ref）"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）","description":"本文的目的是 使用 Metal 渲染摄像头采集的 YUV（实际上是 YCbCr） 数据，关键会使用到 CVMetalTextureCacheRef 类，将摄像头采集到的 CMSampleBuffer 转换成 Metal 的纹理，在 shader 中 转换成 RGBA 格式 ，渲染上屏。\n完整代码可以访问 仓库 的 8. 渲染摄像头采集的 YUV 数据。\n","inLanguage":"zh","wordCount":670,"datePublished":"2020-06-09T13:00:00","dateModified":"2020-06-09T13:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, Metal, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-9-render-camera-yuv-by-texture-cache\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）"><meta property="og:description" content="本文的目的是 使用 Metal 渲染摄像头采集的 YUV（实际上是 YCbCr） 数据，关键会使用到 CVMetalTextureCacheRef 类，将摄像头采集到的 CMSampleBuffer 转换成 Metal 的纹理，在 shader 中 转换成 RGBA 格式 ，渲染上屏。
+完整代码可以访问 仓库 的 8. 渲染摄像头采集的 YUV 数据。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/metal/metal-9-render-camera-yuv-by-texture-cache/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）"><meta name=twitter:description content="本文的目的是 使用 Metal 渲染摄像头采集的 YUV（实际上是 YCbCr） 数据，关键会使用到 CVMetalTextureCacheRef 类，将摄像头采集到的 CMSampleBuffer 转换成 Metal 的纹理，在 shader 中 转换成 RGBA 格式 ，渲染上屏。
+完整代码可以访问 仓库 的 8. 渲染摄像头采集的 YUV 数据。"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>切换导航</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 June 9, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;分钟
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;670&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><aside class=toc-article><nav id=TableOfContents><ul><li><a href=#一yuv--rgba>一、YUV => RGBA</a></li><li><a href=#二cmsamplerbufferref--mtltexture>二、CMSamplerBufferRef => MTLTexture</a></li><li><a href=#三shader>三、shader</a></li></ul></nav></aside><article role=main class=blog-post><p>本文的目的是 <strong>使用 Metal 渲染摄像头采集的 YUV（实际上是 YCbCr） 数据</strong>，关键会使用到 <code>CVMetalTextureCacheRef</code> 类，将摄像头采集到的 <code>CMSampleBuffer</code> 转换成 Metal 的纹理，在 shader 中 <strong>转换成 RGBA 格式</strong> ，渲染上屏。</p><p>完整代码可以访问 <a href=https://github.com/SourceKim/MetalTest>仓库</a> 的 <code>8. 渲染摄像头采集的 YUV 数据</code>。</p><p>大体流程和 <a href=https://www.uiimage.com/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/>上一篇渲染 BGRA</a> 的差不多，只是此处关键需要将 YUV 数据转换成 BGRA 数据。</p><h2 id=一yuv--rgba>一、YUV => RGBA</h2><p>具体 YUV => RGBA 的原理可以参考 <a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-9-rendering-camera-yuv/>OpenGL ES 系列的渲染 YUV 文章</a>，本文不再赘述。</p><p>由于 Metal 存在 <strong>内存对齐</strong> 的问题，因此我们不能使用 9 个 float 数组 <code>float arr[9]</code> 去表达 shader 中的 <code>float3x3</code> 矩阵，否则会出现如下报错：</p><pre><code>Fragment Function(RenderCameraYUVFragmentShader): argument YUV_To_RGB_Matrix[0] from buffer(0) with offset(0) and length(36) has space for 36 bytes, but argument has a length(48).'
+</code></pre><p>意思是在 shader 中的 <code>float3x3</code> 长度是 48 个字节，但是我们传入的是 36 个字节。</p><p>因此不能直接使用 OpenGL ES 定义的 <code>float</code> 数组，这边增加一些定义到转换矩阵和向量 <code>YUV_To_RGB_Matrices_Vectors.h</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>const</span> simd_float3x3 kColorConversion601_simd <span style=color:#f92672>=</span> (simd_float3x3) {
+    (simd_float3) { <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span> },
+    (simd_float3) { <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.392</span>, <span style=color:#ae81ff>2.017</span> },
+    (simd_float3) { <span style=color:#ae81ff>1.596</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.813</span>, <span style=color:#ae81ff>0.0</span> }
+};
+
+<span style=color:#66d9ef>const</span> simd_float3x3 kColorConversion709_simd <span style=color:#f92672>=</span> (simd_float3x3) {
+    (simd_float3) { <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span>, <span style=color:#ae81ff>1.164</span> },
+    (simd_float3) { <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.213</span>, <span style=color:#ae81ff>2.112</span> },
+    (simd_float3) { <span style=color:#ae81ff>1.793</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.533</span>, <span style=color:#ae81ff>0.0</span> }
+};
+
+<span style=color:#66d9ef>const</span> simd_float3x3 kColorConversion601FullRange_simd <span style=color:#f92672>=</span> (simd_float3x3) {
+    (simd_float3) { <span style=color:#ae81ff>1.0</span>, <span style=color:#ae81ff>1.0</span>, <span style=color:#ae81ff>1.0</span> },
+    (simd_float3) { <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.343</span>, <span style=color:#ae81ff>1.765</span> },
+    (simd_float3) { <span style=color:#ae81ff>1.4</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.711</span>, <span style=color:#ae81ff>0.0</span> }
+};
+
+<span style=color:#66d9ef>const</span> simd_float3 kColorTranslationFullRange_simd <span style=color:#f92672>=</span> (simd_float3) { <span style=color:#ae81ff>0.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span> };
+
+<span style=color:#66d9ef>const</span> simd_float3 kColorTranslationVideoRange_simd <span style=color:#f92672>=</span> (simd_float3) { <span style=color:#f92672>-</span><span style=color:#ae81ff>16.0</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>255.0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>0.5</span> };
+</code></pre></div><p>直接使用 <code>simd</code> 去定义，就能自动进行内存对齐。</p><p>在采集到 <code>CMSampleBufferRef</code> 之后，可以通过如下函数去选择矩阵和向量：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+<span style=color:#75715e>#pragma mark - 更新 YUV 转 RGB 的 Tramsform Matrix 和 Translation Vector
+</span><span style=color:#75715e></span>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>updateMatrixAndVector:</span>(CVImageBufferRef)imageBuffer
+                  <span style=color:#a6e22e>isFullRange:</span>(<span style=color:#66d9ef>bool</span>)isFullRange {
+    
+    CFTypeRef matrixType <span style=color:#f92672>=</span> CVBufferGetAttachment(imageBuffer, kCVImageBufferYCbCrMatrixKey, NULL);
+    <span style=color:#66d9ef>bool</span> use601;
+    
+    <span style=color:#66d9ef>if</span> (matrixType <span style=color:#f92672>!=</span> NULL) {
+        use601 <span style=color:#f92672>=</span> CFStringCompare(matrixType, kCVImageBufferYCbCrMatrix_ITU_R_601_4, <span style=color:#ae81ff>0</span>) <span style=color:#f92672>==</span> kCFCompareEqualTo;
+    } <span style=color:#66d9ef>else</span> {
+        use601 <span style=color:#f92672>=</span> true;
+    }
+    
+    <span style=color:#66d9ef>if</span> (use601) {
+        _YUV_To_RGB_Matrix <span style=color:#f92672>=</span> isFullRange <span style=color:#f92672>?</span> kColorConversion601FullRange_simd : kColorConversion601_simd;
+    } <span style=color:#66d9ef>else</span> {
+        _YUV_To_RGB_Matrix <span style=color:#f92672>=</span> kColorConversion709_simd;
+    }
+    
+    _YUV_Tranlation <span style=color:#f92672>=</span> isFullRange <span style=color:#f92672>?</span> kColorTranslationFullRange_simd : kColorTranslationVideoRange_simd;
+}
+</code></pre></div><p>上传矩阵和向量到 shader 代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+    simd_float3x3 _YUV_To_RGB_Matrix;
+    
+    simd_float3 _YUV_Tranlation;
+
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_YUV_To_RGB_Matrix length: <span style=color:#66d9ef>sizeof</span>(simd_float3x3) atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_YUV_Tranlation length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>1</span>];
+
+</code></pre></div><p>Fragment shader 接收：</p><pre><code class=language-hlsl data-lang=hlsl>    constant float3x3 *YUV_To_RGB_Matrix [[ buffer(0) ]],
+    constant float3 *YUV_Translation [[ buffer(1) ]]
+</code></pre><p>作为 Fragment Function 的参数接收。</p><h2 id=二cmsamplerbufferref--mtltexture>二、CMSamplerBufferRef => MTLTexture</h2><p>和转换采集的 BGRA 数据一样，需要借助纹理缓存（<code>CVMetalTextureCacheRef</code>）。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    CVMetalTextureCacheRef _textureCache;
+</code></pre></div><p>然后使用 <code>MTLDevice</code> 对其初始化：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupTextureCache</span> {
+    
+    CVReturn ret <span style=color:#f92672>=</span> CVMetalTextureCacheCreate(NULL, NULL, _device, NULL, <span style=color:#f92672>&amp;</span>_textureCache);
+    
+    <span style=color:#66d9ef>if</span> (ret <span style=color:#f92672>!=</span> kCVReturnSuccess) {
+        NSLog(<span style=color:#e6db74>@&#34;Create cache failed&#34;</span>);
+    }
+}
+</code></pre></div><p>在 AVFoundation 采集到每一帧的 <code>CMSamplerBufferRef</code> 的时候，转换成纹理对象 <code>CVMetalTextureRef</code> 。由于需要从 <code>CMSamplerBufferRef</code> 获取到亮度（luma）& 色度（chroma）两个纹理，因此转换方法还应有 <code>isLuma</code> 标记获取的是亮度还是色度的纹理：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#75715e>#pragma mark - 采集的 Pixel Buffer 转换成 Metal 的 Texture
+</span><span style=color:#75715e></span>
+- (CVMetalTextureRef)<span style=color:#a6e22e>acquireTextureFromBuffer:</span> (CVPixelBufferRef)buffer <span style=color:#a6e22e>isLuma:</span> (<span style=color:#66d9ef>bool</span>)isLuma {
+    
+    MTLPixelFormat format <span style=color:#f92672>=</span> isLuma <span style=color:#f92672>?</span> MTLPixelFormatR8Unorm : MTLPixelFormatRG8Unorm; <span style=color:#75715e>// 1 channel : 2 channel
+</span><span style=color:#75715e></span>    size_t planeIndex <span style=color:#f92672>=</span> isLuma <span style=color:#f92672>?</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>:</span> <span style=color:#ae81ff>1</span>; <span style=color:#75715e>// 选择某一个平面
+</span><span style=color:#75715e></span>    
+    CVMetalTextureRef texture;
+    CVReturn ret <span style=color:#f92672>=</span> CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                             _textureCache,
+                                                             buffer,
+                                                             NULL,
+                                                             format,
+                                                             CVPixelBufferGetWidthOfPlane(buffer, planeIndex), <span style=color:#75715e>// Get width of plane
+</span><span style=color:#75715e></span>                                                             CVPixelBufferGetHeightOfPlane(buffer, planeIndex), <span style=color:#75715e>// Get Height of plane
+</span><span style=color:#75715e></span>                                                             planeIndex,
+                                                             <span style=color:#f92672>&amp;</span>texture);
+    
+    <span style=color:#66d9ef>if</span> (ret <span style=color:#f92672>!=</span> kCVReturnSuccess) {
+        NSLog(<span style=color:#e6db74>@&#34;Read texture faild from sample buffer, %d&#34;</span>, ret);
+    }
+    
+    <span style=color:#66d9ef>return</span> texture;
+}
+</code></pre></div><p>此处需要注意：</p><ul><li><p>亮度 Y 分量使用 <code>MTLPixelFormatR8Unorm</code> 格式表示每个 Y 用一个字节存储；而色度 UV 分量使用 <code>MTLPixelFormatRG8Unorm</code> 格式表示每个 UV 用两个字节存储</p></li><li><p><strong>iOS 所有采集的 YUV 格式都是双平面的</strong> ，且亮度数据在第一个平面，色度数据在第二个平面</p></li><li><p>亮度色度平面的 <strong>宽高</strong> 是不一样的，具体是两倍的关系，我们可以通过</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>size_t CVPixelBufferGetWidthOfPlane( CVPixelBufferRef CV_NONNULL pixelBuffer, size_t planeIndex )
+size_t CVPixelBufferGetHeightOfPlane( CVPixelBufferRef CV_NONNULL pixelBuffer, size_t planeIndex 
+</code></pre></div><p>api 获取对应平面的宽高</p></li></ul><p>这样，在采集之后调用该函数的时候传入不同 <code>isLuma</code> 就可以 <strong>同时获取到亮度和色度的纹理</strong>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    CVMetalTextureRef lumaTexture <span style=color:#f92672>=</span> [self acquireTextureFromBuffer: imageBuffer isLuma: true]; <span style=color:#75715e>// PixelBuffer =&gt; CV Metal Texture
+</span><span style=color:#75715e></span>    CVMetalTextureRef chromaTexture <span style=color:#f92672>=</span> [self acquireTextureFromBuffer: imageBuffer isLuma: false]; <span style=color:#75715e>// PixelBuffer =&gt; CV Metal Texture
+</span></code></pre></div><p>最后调用</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>CV_EXPORT <span style=color:#66d9ef>id</span> <span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span> CV_NULLABLE CVMetalTextureGetTexture( CVMetalTextureRef CV_NONNULL image )
+</code></pre></div><p>从两个 <code>CVMetalTextureRef</code> 中获取 <code>MTLTexture</code></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLTexture<span style=color:#f92672>&gt;</span> _lumaTexutre, _chromaTexture;
+
+    _lumaTexutre <span style=color:#f92672>=</span> CVMetalTextureGetTexture(lumaTexture); <span style=color:#75715e>// CV Metal Texture -&gt; MTLTexture
+</span><span style=color:#75715e></span>    _chromaTexture <span style=color:#f92672>=</span> CVMetalTextureGetTexture(chromaTexture); <span style=color:#75715e>// CV Metal Texture -&gt; MTLTexture
+</span></code></pre></div><h2 id=三shader>三、shader</h2><p>完整 shader 如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>constexpr sampler texSampler;
+
+<span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>struct</span>
+{
+    float4 position [[position]];
+    float2 texCoor;
+    
+} VertexOut;
+
+vertex VertexOut
+<span style=color:#a6e22e>RenderCameraYUVVertexShader</span>(
+                            uint vertexID [[ vertex_id ]],
+                            constant float4 <span style=color:#f92672>*</span>position [[ buffer(<span style=color:#ae81ff>0</span>) ]],
+                            constant float2 <span style=color:#f92672>*</span>texCoor [[ buffer(<span style=color:#ae81ff>1</span>) ]]
+                            ) {
+    VertexOut <span style=color:#66d9ef>out</span>;
+    
+    <span style=color:#66d9ef>out</span>.position <span style=color:#f92672>=</span> position[vertexID];
+    <span style=color:#66d9ef>out</span>.texCoor <span style=color:#f92672>=</span> texCoor[vertexID];
+    
+    <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>out</span>;
+}
+
+fragment float4
+<span style=color:#a6e22e>RenderCameraYUVFragmentShader</span>(
+                              VertexOut <span style=color:#66d9ef>in</span> [[ stage_in ]],
+                              texture2d<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>float</span>, access<span style=color:#f92672>::</span>sample<span style=color:#f92672>&gt;</span> lumaTex [[ texture(<span style=color:#ae81ff>0</span>) ]],
+                              texture2d<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>float</span>, access<span style=color:#f92672>::</span>sample<span style=color:#f92672>&gt;</span> chromaTex [[ texture(<span style=color:#ae81ff>1</span>) ]],
+                              constant float3x3 <span style=color:#f92672>*</span>YUV_To_RGB_Matrix [[ buffer(<span style=color:#ae81ff>0</span>) ]],
+                              constant float3 <span style=color:#f92672>*</span>YUV_Translation [[ buffer(<span style=color:#ae81ff>1</span>) ]]
+                              ) {
+    float3 yuv, rgb;
+    
+    yuv.r <span style=color:#f92672>=</span> lumaTex.sample(texSampler, <span style=color:#66d9ef>in</span>.texCoor).r;
+    yuv.gb <span style=color:#f92672>=</span> chromaTex.sample(texSampler, <span style=color:#66d9ef>in</span>.texCoor).rg;
+    
+    rgb <span style=color:#f92672>=</span> YUV_To_RGB_Matrix[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>*</span> (yuv <span style=color:#f92672>+</span> YUV_Translation[<span style=color:#ae81ff>0</span>]);
+    
+    <span style=color:#66d9ef>return</span> float4(rgb, <span style=color:#ae81ff>1</span>);
+}
+</code></pre></div><p>主要的操作都是在 Fragment Shader 中，需要注意的是对 UV 纹理进行采样之后，获取的是前两个元素，使用 <code>.rg</code> 获取，区别于 OpenGL ES 的 <code>.ra</code>。</p><p>配合传入的转换矩阵和转换向量，即可将 Y 和 UV 两个 texture，转化成 RGB 片元，完成渲染上屏。</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/metal/>Metal</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f&text=Metal%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%28YCbCr%29%20%e6%95%b0%e6%8d%ae%ef%bc%88CVMetalTextureCacheRef%ef%bc%89&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f&title=Metal%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%28YCbCr%29%20%e6%95%b0%e6%8d%ae%ef%bc%88CVMetalTextureCacheRef%ef%bc%89" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f&title=Metal%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%28YCbCr%29%20%e6%95%b0%e6%8d%ae%ef%bc%88CVMetalTextureCacheRef%ef%bc%89" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f&title=Metal%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%28YCbCr%29%20%e6%95%b0%e6%8d%ae%ef%bc%88CVMetalTextureCacheRef%ef%bc%89" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-9-render-camera-yuv-by-texture-cache%2f&description=Metal%20-%209%20%e6%b8%b2%e6%9f%93%e6%91%84%e5%83%8f%e5%a4%b4%e9%87%87%e9%9b%86%e7%9a%84%20YUV%28YCbCr%29%20%e6%95%b0%e6%8d%ae%ef%bc%88CVMetalTextureCacheRef%ef%bc%89" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>也可以看看</h4><ul><li><a href=/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/>Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-7-rotatingcube/>Metal - 7 旋转的立方体</a></li><li><a href=/post/blog/metal/metal-6-three-dimentions-transformation/>Metal - 6 三维变换</a></li><li><a href=/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/>Metal 编译错误 CompileMetalFile XXX, fatal error: 'XXX.h' file not found</a></li><li><a href=/post/blog/metal/metal-5-filter-chain/>Metal - 5 滤镜链（渲染到纹理）</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/metal/metal-7-rotatingcube/ data-toggle=tooltip data-placement=top title="Metal - 7 旋转的立方体">&larr; 前一篇</a></li><li class=next><a href=https://www.uiimage.com/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/ data-toggle=tooltip data-placement=top title="Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）">后一篇 &rarr;</a></li></ul><span id=/post/blog/metal/metal-9-render-camera-yuv-by-texture-cache/ class=leancloud_visitors data-flag-title="Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）"><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted">由 <a href=https://gohugo.io>Hugo v0.69.2</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> 移植自 <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
