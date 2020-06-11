@@ -1,0 +1,346 @@
+<!doctype html><html lang=zh itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>Metal - 10 光照（冯氏光照模型） - Kim's Blog</title><meta name=description content="本文将学习在 Metal 中渲染光照，主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+将会涉及到如下的技术点：
+
+
+1、不使用索引（Index）绘制立方体（使用 36 组顶点）
+
+
+2、一次渲染中，绘制两个图像（一个 Encoder 多次 Draw Calls），一个作为物体，一个作为光源
+
+
+3、冯氏光照模型在 Metal 中的实现
+
+
+最终实现的效果是物体自旋转，光源固定，物体表面因光线发生颜色变化。
+完整代码可以访问 仓库 的 9. 光照（冯氏光照模型）。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-10-phong-lighting\/","name":"Metal 10 光照（冯氏光照模型）"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"Metal - 10 光照（冯氏光照模型）","description":"本文将学习在 Metal 中渲染光照，主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。\n将会涉及到如下的技术点：\n  1、不使用索引（Index）绘制立方体（使用 36 组顶点）\n  2、一次渲染中，绘制两个图像（一个 Encoder 多次 Draw Calls），一个作为物体，一个作为光源\n  3、冯氏光照模型在 Metal 中的实现\n  最终实现的效果是物体自旋转，光源固定，物体表面因光线发生颜色变化。\n完整代码可以访问 仓库 的 9. 光照（冯氏光照模型）。\n","inLanguage":"zh","wordCount":1099,"datePublished":"2020-06-10T13:00:00","dateModified":"2020-06-10T13:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, Metal, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-10-phong-lighting\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="Metal - 10 光照（冯氏光照模型）"><meta property="og:description" content="本文将学习在 Metal 中渲染光照，主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+将会涉及到如下的技术点：
+
+
+1、不使用索引（Index）绘制立方体（使用 36 组顶点）
+
+
+2、一次渲染中，绘制两个图像（一个 Encoder 多次 Draw Calls），一个作为物体，一个作为光源
+
+
+3、冯氏光照模型在 Metal 中的实现
+
+
+最终实现的效果是物体自旋转，光源固定，物体表面因光线发生颜色变化。
+完整代码可以访问 仓库 的 9. 光照（冯氏光照模型）。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="Metal - 10 光照（冯氏光照模型）"><meta name=twitter:description content="本文将学习在 Metal 中渲染光照，主要采用的是 冯氏光照模型(Phong Lighting Model) 来实现。
+将会涉及到如下的技术点：
+
+
+1、不使用索引（Index）绘制立方体（使用 36 组顶点）
+
+
+2、一次渲染中，绘制两个图像（一个 Encoder 多次 Draw Calls），一个作为物体，一个作为光源
+
+
+3、冯氏光照模型在 Metal 中的实现
+
+
+最终实现的效果是物体自旋 …"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>切换导航</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>Metal - 10 光照（冯氏光照模型）</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 June 10, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1099&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><aside class=toc-article><nav id=TableOfContents><ul><li><a href=#一冯氏光照模型>一、冯氏光照模型</a><ul><li><a href=#metal-冯氏光照模型-shader>Metal 冯氏光照模型 shader</a></li></ul></li><li><a href=#二不使用索引index绘制立方体使用-36-组顶点>二、不使用索引（Index）绘制立方体（使用 36 组顶点）</a></li><li><a href=#三一次渲染两个物体>三、一次渲染两个物体</a><ul><li><a href=#pushdebuggroup--popdebuggroup>PushDebugGroup / PopDebugGroup</a></li></ul></li></ul></nav></aside><article role=main class=blog-post><p>本文将学习在 Metal 中渲染光照，主要采用的是 <strong>冯氏光照模型(Phong Lighting Model)</strong> 来实现。</p><p>将会涉及到如下的技术点：</p><ul><li><p>1、不使用索引（Index）绘制立方体（使用 36 组顶点）</p></li><li><p>2、一次渲染中，绘制两个图像（一个 Encoder 多次 Draw Calls），一个作为物体，一个作为光源</p></li><li><p>3、冯氏光照模型在 Metal 中的实现</p></li></ul><p>最终实现的效果是物体自旋转，光源固定，物体表面因光线发生颜色变化。</p><p>完整代码可以访问 <a href=https://github.com/SourceKim/MetalTest>仓库</a> 的 <code>9. 光照（冯氏光照模型）</code>。</p><p>本文最终效果</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/gif/metal_phong_lighting.gif alt=metal_phong_lightning></p><p>白色是光源，红色是物体，物体不断自转导致表面的颜色发生变化。</p><h2 id=一冯氏光照模型>一、冯氏光照模型</h2><p>冯氏光照模型使用模型来表达复杂的光线和我们看到物体颜色之间的关系，主要有如下 3 个分量：</p><ul><li><code>环境光照(Ambient Lighting)</code>：即使在黑暗的情况下，世界上也仍然有一些光亮(月亮、一个来自远处的光)，所以物体永远不会是完全黑暗的。我们使用环境光照来模拟这种情况，也就是无论如何永远都给物体一些颜色。</li><li><code>漫反射光照(Diffuse Lighting)</code>：模拟一个发光物对物体的方向性影响(Directional Impact)。它是冯氏光照模型最显著的组成部分。面向光源的一面比其他面会更亮。</li><li><code>镜面光照(Specular Lighting)</code>：模拟有光泽物体上面出现的亮点。镜面光照的颜色，相比于物体的颜色更倾向于光的颜色。</li></ul><p>具体原理，请参考 <a href=https://www.uiimage.com/post/blog/opengl-es/opengl-es-10-lightning/>OpenGL ES 篇 - 光照</a>，此处不再赘述。</p><h3 id=metal-冯氏光照模型-shader>Metal 冯氏光照模型 shader</h3><pre><code class=language-hlsl data-lang=hlsl>typedef struct
+{
+    float4 position [[position]];
+    
+    float3 vertexNormal;
+    
+    float3 fragmentPosition;
+    
+} VertexOut;
+
+vertex VertexOut
+PhongLightVertexShader(
+                       uint vertexID [[ vertex_id ]],
+                       constant packed_float3 *position [[ buffer(0) ]], // 位置
+                       constant packed_float3 *normal [[ buffer(1) ]], // 法线
+                       constant float4x4 *modelMatrix [[ buffer(2) ]], // 本地变换矩阵
+                       constant float4x4 *viewMatrix [[ buffer(3) ]], // 观察矩阵
+                       constant float4x4 *projectionMatrix [[ buffer(4) ]] // 投影矩阵
+                       ) {
+    VertexOut out;
+    
+    out.position = projectionMatrix[0] * viewMatrix[0] * modelMatrix[0] * float4(position[vertexID], 1);
+    out.vertexNormal = (modelMatrix[0] * float4(normal[vertexID], 0)).rgb;
+    out.fragmentPosition = (modelMatrix[0] * float4(position[vertexID], 1)).rgb;
+    
+    return out;
+}
+
+fragment float4
+PhongLightFragmentShader(
+                         VertexOut in [[ stage_in ]],
+                         constant float3 *originColor [[ buffer(0) ]], // 当前渲染对象的颜色
+                         constant bool *needLight [[ buffer(1) ]], // 是否需要渲染光线（光源无需反光）
+                         constant float3 *lightColor [[ buffer(2) ]], // 光源颜色
+                         constant float *ambientStrength [[ buffer(3) ]], // 环境光强度
+                         constant float3 *lightPos [[ buffer(4) ]], // 光源的位置
+                         constant float3 *eyePos [[ buffer(5) ]], // 眼睛（摄像机）的位置
+                         constant float *specularStrength [[ buffer(6) ]] // 镜面反射的强度
+                         ) {
+    
+    float3 color;
+    
+    if (needLight[0]) {
+        
+        // Ambient
+        float3 ambient = ambientStrength[0] * lightColor[0];
+        
+        // Diffuse
+        float3 norm = normalize(in.vertexNormal);
+        float3 lightDir = normalize(lightPos[0] - in.fragmentPosition);
+        
+        float diff = max(dot(norm, lightDir), 0.0);
+        float3 diffuse = diff * lightColor[0];
+        
+        // Specular
+        float3 eyeDir = normalize(eyePos[0] - in.fragmentPosition); // 视线方向
+        float3 reflectDir = reflect(-lightDir, norm); // 光线反射的方向
+        
+        float3 spec = pow(max(dot(eyeDir, reflectDir), 0.0), 32.0);
+        float3 specular = specularStrength[0] * spec * lightColor[0];
+        
+        color = (ambient + diffuse + specular) * originColor[0];
+        
+    } else {
+        
+        color = originColor[0];
+        
+    }
+    return float4(color, 1);
+}
+</code></pre><ul><li><p>Vertex Shader</p><p>参数：</p><ul><li><code>position</code> 顶点向量</li><li><code>normal</code> 法线向量</li><li><code>modelMatrix</code> 本地变换矩阵（物体和光源不同，因为他们有不同的位置坐标）</li><li><code>viewMatrix</code> 观察矩阵（物体和光源相同，因为观察者，或者说摄像机用的是同一个）</li><li><code>projectionMatrix</code> 投影矩阵（物体和光源相同）</li></ul><p>输出（<code>VertexOut</code> 结构体）：</p><ul><li><code>position</code> 顶点矩阵变换后的向量</li><li><code>vertexNormal</code> 法线矩阵变换后的向量</li><li><code>fragmentPosition</code> 片元的本地坐标变换后的位置向量</li></ul><p>注意，顶点着色器的输出会自动进行插值处理。</p></li><li><p>Fragment Shader</p><p>参数：</p><ul><li><code>in</code> Vertex Shader 光栅化后插值的输出</li><li><code>originColor</code> 当前渲染对象的颜色。本 demo 物体是红色，光源是白色</li><li><code>needLight</code> 是否需要渲染光线。对于光源来说，无需渲染反光，该值为 false</li><li><code>lightColor</code> 光源颜色。本 demo 是白色</li><li><code>ambientStrength</code> 计算环境光强度。在原理中也介绍了，环境光一般是个很小的值，本例子是 0.2</li><li><code>lightPos</code> 光源的位置。实际上就是光源 Model Matrix 的 <code>translate</code> 矩阵的组成向量</li><li><code>eyePos</code> 眼睛（摄像机）的位置。实际上是 View Matrix 的 <code>eye</code> 组成分量</li><li><code>specularStrength</code> 计算镜面反射的强度。本 demo 使用 0.5</li></ul><p>输出：</p><ul><li><p>对于光源而言，即 <code>needLight</code> 为 false，直接输出光源颜色，即 <code>originColor</code></p><p><code>color = originColor[0];</code></p></li><li><p>对于物体而言，即 <code>needLight</code> 为 true，输出物体颜色经过光源影响后的颜色，即 <code>originColor</code> 和冯氏光照模型应用的效果</p><p><code>color = (ambient + diffuse + specular) * originColor[0];</code></p></li></ul></li></ul><h2 id=二不使用索引index绘制立方体使用-36-组顶点>二、不使用索引（Index）绘制立方体（使用 36 组顶点）</h2><p>对于一个普通立方体而言，可以使用 8 个顶点 6 个面共享的方式去绘制；但是由于此处各个面的同一个顶点 <strong>法线是不一样的</strong>，因此需要各个面定义不同的顶点。</p><p>立方体每个面由 2 个三角形构成，一共 6 个面，所以一共有 12 个面，而每个面由 3 个顶点组成，因此一共了 36 个顶点，对应的法线向量的数量也是 36 个。</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChat1ade44fa1089cea6a897a581bd811c6f.png alt=立方体></p><p>根据这个图，得出顶点和法线的定义：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>float</span> vertices[] <span style=color:#f92672>=</span> {
+    
+    <span style=color:#75715e>// 正面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 右面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 背面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 左面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>    
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 上面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>,<span style=color:#75715e>// 0
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>   
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 1
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 4
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 5
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 下面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 2
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 3
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 6
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#75715e>// 7
+</span><span style=color:#75715e></span>};
+
+<span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>float</span> normals[] <span style=color:#f92672>=</span> {
+    
+    <span style=color:#75715e>// 正面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>,
+    
+    <span style=color:#75715e>// 右面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 背面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>,
+    
+    <span style=color:#75715e>// 左面
+</span><span style=color:#75715e></span>    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 上面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    
+    <span style=color:#75715e>// 下面
+</span><span style=color:#75715e></span>    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+    <span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>0</span>,
+};
+</code></pre></div><p>在之前，我们说过 Metal 由于 <strong>内存对齐</strong> 的原因，要尽量用 <code>float4</code> 来表达顶点，但是这里如果要修改工作量就会很大（我是从 OpenGL 篇直接 copy 的顶点和法线），那么如何在 shader 中接收这种 <strong>每三个 float 为一组顶点</strong> 的定义呢？</p><p>在我们的 shader 中，我们可以使用 <code>packed_float3</code> 来表示这些顶点，代表的是每 3 个 float 为一组顶点，他们是 <strong>紧密排布</strong> 的。</p><p>最后在 Encoder 中绘制图元的时候，要使用 <code>MTLPrimitiveTypeTriangle</code> 来绘制 <strong>独立的三角形</strong>，其中 <code>vertexCount</code> 也就是顶点的数量是 36 个：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+    <span style=color:#75715e>// ......
+</span><span style=color:#75715e></span>
+    [encoder drawPrimitives: MTLPrimitiveTypeTriangle
+                vertexStart: <span style=color:#ae81ff>0</span>
+                vertexCount: <span style=color:#ae81ff>36</span>];
+</code></pre></div><h2 id=三一次渲染两个物体>三、一次渲染两个物体</h2><p>在图形渲染中，一次 <strong>根据顶点绘制图元到 FrameBuffer</strong> 的操作被称为一个 <code>Draw Call</code>，一次渲染两个物体要求我们每次 <code>present</code> 之前要有两次 <code>Draw Call</code>。在本 demo 中要求我们两次绘制分别绘制物体和光源到 FrameBuffer 中，然后再执行 <code>present</code> 操作。</p><p>因此我们的 <code>render</code> 函数要改成这样：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render</span> {
+
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>CAMetalDrawable<span style=color:#f92672>&gt;</span> currentDrawable <span style=color:#f92672>=</span> [_layer nextDrawable];
+    _renderTargetDesc.colorAttachments[<span style=color:#ae81ff>0</span>].texture <span style=color:#f92672>=</span> currentDrawable.texture;
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLCommandBuffer<span style=color:#f92672>&gt;</span> commandBuffer <span style=color:#f92672>=</span> [_queue commandBuffer];
+    commandBuffer.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Command Buffer&#34;</span>;
+
+    <span style=color:#75715e>// ......
+</span><span style=color:#75715e></span>
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span> encoder <span style=color:#f92672>=</span> [commandBuffer renderCommandEncoderWithDescriptor: _renderTargetDesc];
+    encoder.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Object Render Command Encoder&#34;</span>;
+    
+    <span style=color:#75715e>// ......
+</span><span style=color:#75715e></span>    
+    [self render_obj: encoder]; <span style=color:#75715e>// 渲染旋转的物体
+</span><span style=color:#75715e></span>    
+    [self render_camera: encoder]; <span style=color:#75715e>// 渲染光源
+</span><span style=color:#75715e></span>    
+    [encoder endEncoding];
+    
+    [commandBuffer presentDrawable: currentDrawable];
+    
+    [commandBuffer commit];
+}
+</code></pre></div><p>每次渲染的时候使用 <code>1</code> 个 Command Buffer，每个 Command Buffer 对应 <code>1</code> 个 Encoder，在每个 Encoder 中会有 <code>2</code> 次 Draw Calls，即 <code>drawPrimitive:</code> 的调用，分别在 <code>render_obj:</code> 和 <code>render_camera:</code> 两个方法中，他们都需要对 encoder 进行参数配置（<code>setVertexBytes:</code> / <code>setFragmentBytes</code>&mldr;.）以及 <code>1</code> 次 <code>drawPrimitive:</code>，差异仅在参数的配置上。</p><p>渲染旋转的物体：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render_obj:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span>)encoder{
+    
+    <span style=color:#66d9ef>bool</span> needLight <span style=color:#f92672>=</span> true;
+    
+    [encoder pushDebugGroup: <span style=color:#e6db74>@&#34;Obj Draw Call&#34;</span>];
+    
+    [encoder setVertexBytes: vertices
+                     length: <span style=color:#66d9ef>sizeof</span>(vertices)
+                    atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setVertexBytes: normals
+                     length: <span style=color:#66d9ef>sizeof</span>(normals)
+                    atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_objModelMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>2</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_viewMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>3</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_projectionMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>4</span>];
+    
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_objColor length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>0</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>needLight length: <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>bool</span>) atIndex: <span style=color:#ae81ff>1</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_cameraColor length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>2</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_ambientStrength length: <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>float</span>) atIndex: <span style=color:#ae81ff>3</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_lightPos length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>4</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_eyePos length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>5</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_specularStrength length: <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>float</span>) atIndex: <span style=color:#ae81ff>6</span>];
+    
+    [encoder drawPrimitives: MTLPrimitiveTypeTriangle
+                vertexStart: <span style=color:#ae81ff>0</span>
+                vertexCount: <span style=color:#ae81ff>36</span>];
+    
+    [encoder popDebugGroup];
+}
+</code></pre></div><p>渲染光源：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render_camera:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span>)encoder {
+    
+    <span style=color:#66d9ef>bool</span> needLight <span style=color:#f92672>=</span> false;
+    
+    [encoder pushDebugGroup: <span style=color:#e6db74>@&#34;Camera Draw Call&#34;</span>];
+    
+    [encoder setVertexBytes: vertices
+                     length: <span style=color:#66d9ef>sizeof</span>(vertices)
+                    atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setVertexBytes: normals
+                     length: <span style=color:#66d9ef>sizeof</span>(normals)
+                    atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_cameraModelMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>2</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_viewMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>3</span>];
+    
+    [encoder setVertexBytes: <span style=color:#f92672>&amp;</span>_projectionMatrix
+                     length: [MetalMatrix mm_matrixSize]
+                    atIndex: <span style=color:#ae81ff>4</span>];
+    
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>_cameraColor length: <span style=color:#66d9ef>sizeof</span>(simd_float3) atIndex: <span style=color:#ae81ff>0</span>];
+    [encoder setFragmentBytes: <span style=color:#f92672>&amp;</span>needLight length: <span style=color:#66d9ef>sizeof</span>(<span style=color:#66d9ef>bool</span>) atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder drawPrimitives: MTLPrimitiveTypeTriangle
+                vertexStart: <span style=color:#ae81ff>0</span>
+                vertexCount: <span style=color:#ae81ff>36</span>];
+    
+    [encoder popDebugGroup];
+}
+</code></pre></div><p>在渲染物体的时候需要完整的光照参数，以及 <code>needLight</code> 是 true；</p><p>但是在渲染光源的时候仅需要光源的颜色，以及 <code>needLight</code> 为 false 便可以渲染。</p><h3 id=pushdebuggroup--popdebuggroup>PushDebugGroup / PopDebugGroup</h3><p>Coomand Buffer 和 Command Encoder 都有这两个方法</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>pushDebugGroup:</span>(NSString <span style=color:#f92672>*</span>)string
+
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>popDebugGroup</span>
+
+</code></pre></div><ul><li><p><code>pushDebugGroup</code> 传入一个字符串，用以在 debug 的时候将 <strong>一系列 GPU 操作分组</strong>，在栈中标记为开始</p></li><li><p><code>popDebugGroup</code> 将栈顶的分组标记为结束，并且出栈</p></li></ul><p>一进一出就成功地 <strong>标记了一组 GPU 的操作</strong>。</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200611143520.png alt></p><p>可以看到每个 <code>DebugGroup</code> 被包裹成了黄色的文件夹。</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/metal/>Metal</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f&text=Metal%20-%2010%20%e5%85%89%e7%85%a7%ef%bc%88%e5%86%af%e6%b0%8f%e5%85%89%e7%85%a7%e6%a8%a1%e5%9e%8b%ef%bc%89&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f&title=Metal%20-%2010%20%e5%85%89%e7%85%a7%ef%bc%88%e5%86%af%e6%b0%8f%e5%85%89%e7%85%a7%e6%a8%a1%e5%9e%8b%ef%bc%89" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f&title=Metal%20-%2010%20%e5%85%89%e7%85%a7%ef%bc%88%e5%86%af%e6%b0%8f%e5%85%89%e7%85%a7%e6%a8%a1%e5%9e%8b%ef%bc%89" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f&title=Metal%20-%2010%20%e5%85%89%e7%85%a7%ef%bc%88%e5%86%af%e6%b0%8f%e5%85%89%e7%85%a7%e6%a8%a1%e5%9e%8b%ef%bc%89" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-10-phong-lighting%2f&description=Metal%20-%2010%20%e5%85%89%e7%85%a7%ef%bc%88%e5%86%af%e6%b0%8f%e5%85%89%e7%85%a7%e6%a8%a1%e5%9e%8b%ef%bc%89" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>也可以看看</h4><ul><li><a href=/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/>Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-9-render-camera-yuv-by-texture-cache/>Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-7-rotatingcube/>Metal - 7 旋转的立方体</a></li><li><a href=/post/blog/metal/metal-6-three-dimentions-transformation/>Metal - 6 三维变换</a></li><li><a href=/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/>Metal 编译错误 CompileMetalFile XXX, fatal error: 'XXX.h' file not found</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/ data-toggle=tooltip data-placement=top title="Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）">&larr; 前一篇</a></li></ul><span id=/post/blog/metal/metal-10-phong-lighting/ class=leancloud_visitors data-flag-title="Metal - 10 光照（冯氏光照模型）"><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted">由 <a href=https://gohugo.io>Hugo v0.69.2</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> 移植自 <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
