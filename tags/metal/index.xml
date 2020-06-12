@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Metal on Kim's Blog</title><link>https://www.uiimage.com/tags/metal/</link><description>Recent content in Metal on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Wed, 10 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/metal/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 10 光照（冯氏光照模型）</title><link>https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/</link><pubDate>Wed, 10 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/</guid><description>&lt;p>本文将学习在 Metal 中渲染光照，主要采用的是 &lt;strong>冯氏光照模型(Phong Lighting Model)&lt;/strong> 来实现。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Metal on Kim's Blog</title><link>https://www.uiimage.com/tags/metal/</link><description>Recent content in Metal on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Thu, 11 Jun 2020 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/metal/index.xml" rel="self" type="application/rss+xml"/><item><title>Metal - 11 GPGPU 通用计算（Compute Shader）</title><link>https://www.uiimage.com/post/blog/metal/metal-11-generic-purpose-computing/</link><pubDate>Thu, 11 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-11-generic-purpose-computing/</guid><description>&lt;p>本文将介绍使用 Metal 来进行 &lt;strong>通用计算&lt;/strong>，将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，计算出每个位置对应的值，并且保存到数组中。&lt;/p>
+&lt;p>将了解到如下技术点：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>1、Metal 通用计算基础概念&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>2、通用计算的计算网格、线程组、线程 （Grid &amp;amp; ThreadGroup &amp;amp; Thread）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>3、使用 Metal 计算网格递增数据&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>完整代码可以访问 &lt;a href="https://github.com/SourceKim/MetalTest">仓库&lt;/a> 的 &lt;code>10. GPGPU通用计算（Compute Shader）&lt;/code>。&lt;/p></description></item><item><title>Metal - 10 光照（冯氏光照模型）</title><link>https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/</link><pubDate>Wed, 10 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/</guid><description>&lt;p>本文将学习在 Metal 中渲染光照，主要采用的是 &lt;strong>冯氏光照模型(Phong Lighting Model)&lt;/strong> 来实现。&lt;/p>
 &lt;p>将会涉及到如下的技术点：&lt;/p>
 &lt;ul>
 &lt;li>

@@ -1,0 +1,167 @@
+<!doctype html><html lang=zh itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>Metal - 11 GPGPU 通用计算（Compute Shader） - Kim's Blog</title><meta name=description content="本文将介绍使用 Metal 来进行 通用计算，将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，计算出每个位置对应的值，并且保存到数组中。
+将了解到如下技术点：
+
+
+1、Metal 通用计算基础概念
+
+
+2、通用计算的计算网格、线程组、线程 （Grid & ThreadGroup & Thread）
+
+
+3、使用 Metal 计算网格递增数据
+
+
+完整代码可以访问 仓库 的 10. GPGPU通用计算（Compute Shader）。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-11-generic-purpose-computing\/","name":"Metal 11 g p g p u 通用计算（ compute shader）"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"Metal - 11 GPGPU 通用计算（Compute Shader）","description":"本文将介绍使用 Metal 来进行 通用计算，将 1024x1024 的二维数组从左到右从上到下 \x2b1 递增排列，计算出每个位置对应的值，并且保存到数组中。\n将了解到如下技术点：\n  1、Metal 通用计算基础概念\n  2、通用计算的计算网格、线程组、线程 （Grid \x26amp; ThreadGroup \x26amp; Thread）\n  3、使用 Metal 计算网格递增数据\n  完整代码可以访问 仓库 的 10. GPGPU通用计算（Compute Shader）。\n","inLanguage":"zh","wordCount":678,"datePublished":"2020-06-11T23:00:00","dateModified":"2020-06-11T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, Metal, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-11-generic-purpose-computing\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="Metal - 11 GPGPU 通用计算（Compute Shader）"><meta property="og:description" content="本文将介绍使用 Metal 来进行 通用计算，将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，计算出每个位置对应的值，并且保存到数组中。
+将了解到如下技术点：
+
+
+1、Metal 通用计算基础概念
+
+
+2、通用计算的计算网格、线程组、线程 （Grid & ThreadGroup & Thread）
+
+
+3、使用 Metal 计算网格递增数据
+
+
+完整代码可以访问 仓库 的 10. GPGPU通用计算（Compute Shader）。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/metal/metal-11-generic-purpose-computing/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="Metal - 11 GPGPU 通用计算（Compute Shader）"><meta name=twitter:description content="本文将介绍使用 Metal 来进行 通用计算，将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，计算出每个位置对应的值，并且保存到数组中。
+将了解到如下技术点：
+
+
+1、Metal 通用计算基础概念
+
+
+2、通用计算的计算网格、线程组、线程 （Grid & ThreadGroup & Thread）
+
+
+3、使用 Metal …"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>切换导航</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>Metal - 11 GPGPU 通用计算（Compute Shader）</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 June 11, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;分钟
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;678&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><aside class=toc-article><nav id=TableOfContents><ul><li><a href=#一metal-通用计算基础概念>一、Metal 通用计算基础概念</a></li><li><a href=#二运算网格grid线程组threadgroup线程thread>二、运算网格（Grid）、线程组（ThreadGroup）、线程（Thread）</a><ul><li><a href=#在-shader-中获取当次计算的线程组和线程>在 shader 中获取当次计算的线程组和线程</a></li><li><a href=#2d-计算组的网格分布>2D 计算组的网格分布</a></li></ul></li><li><a href=#三通用计算-demo-完整解析>三、通用计算 Demo 完整解析</a><ul><li><a href=#1配置-metal-setupmetal>1、配置 Metal <code>setupMetal</code></a></li><li><a href=#2配置计算管线-setupcomputepipeline>2、配置计算管线 <code>setupComputePipeline</code></a></li><li><a href=#3构造输出的缓冲区-createoutputbuffer>3、构造输出的缓冲区 <code>createOutputBuffer</code></a></li><li><a href=#4配置计算线程组-setupthreadgroups>4、配置计算线程组 <code>setupThreadGroups</code></a></li><li><a href=#5执行计算-compute>5、执行计算 <code>compute</code></a></li></ul></li></ul></nav></aside><article role=main class=blog-post><p>本文将介绍使用 Metal 来进行 <strong>通用计算</strong>，将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，计算出每个位置对应的值，并且保存到数组中。</p><p>将了解到如下技术点：</p><ul><li><p>1、Metal 通用计算基础概念</p></li><li><p>2、通用计算的计算网格、线程组、线程 （Grid & ThreadGroup & Thread）</p></li><li><p>3、使用 Metal 计算网格递增数据</p></li></ul><p>完整代码可以访问 <a href=https://github.com/SourceKim/MetalTest>仓库</a> 的 <code>10. GPGPU通用计算（Compute Shader）</code>。</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612144129.png alt="Hello Compute"></p><h2 id=一metal-通用计算基础概念>一、Metal 通用计算基础概念</h2><p>Metal 除了可以做 GPU 加速图形渲染任务之外，还能使用 GPU 来进行大规模的计算，我们称之为 GPGPU（<code>Generic-Purpose GPU</code>），这样能加速很多复杂的计算，比如当前最热的深度学习等。</p><p>每次运算可以看做是一次 GPU 指令的 Buffer（<code>MTLCommandBuffer</code>），通过通过计算的 Encoder（<code>MTLComputeCommandEncoder</code>）将计算资源（<code>MTLResource</code>）上传到 <code>kernel</code> 计算函数（<code>MTLFunction</code>）中，最后分配（<code>dispatch</code>）到多个线程去执行，来完成通用计算。</p><p>整体流程如该图：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612152857.png alt=Metal-Compute-Api></p><h2 id=二运算网格grid线程组threadgroup线程thread>二、运算网格（Grid）、线程组（ThreadGroup）、线程（Thread）</h2><p>Metal 将一次大规模的运算理解成 <code>1</code> 个大的网格，然后将网格又划分成 <code>n</code> 个线程组，每个线程组又包含有 <code>m</code> 个线程。</p><p><code>n</code> 和 <code>m</code> 都是可以至高使用 3D 的 <code>MTLSize</code> 表示，如果是 2D 的计算模式，可以将 <code>depth</code> 设置为 1，如果是 1D，需要将 <code>height</code> 和 <code>depth</code> 同时设置为 1。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>typedef</span> <span style=color:#66d9ef>struct</span> {
+    NSUInteger width, height, depth;
+} MTLSize;
+</code></pre></div><p>比如说计算一张 1024x768 个像素的图片</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612153420.png alt></p><p>我们划分成了 32x48 个线程组，每个线程组有 32x16 个线程。</p><h3 id=在-shader-中获取当次计算的线程组和线程>在 shader 中获取当次计算的线程组和线程</h3><p>有了上述的概念之后，我们就可以在我们的 kernel 函数中去获取 <strong>当次计算对应的位置</strong> 了。</p><p>Metal 的 kernel 函数，每次计算相当于 <strong>一个 thread</strong>，我们可以通过 Metal 的内置标识去获取到当前计算与网格的位置。</p><p>比如在本 demo 中需要取的是当次计算相对于网格的位置，可以使用 <code>[[ thread_position_in_grid ]]</code> 标识：</p><pre><code class=language-HLSL data-lang=HLSL>kernel
+void ComputeKernelShader(device uint *outBuffer [[ buffer(0) ]],
+                         constant uint2 &amp;outSize [[ buffer(1) ]],
+                         uint2 position [[ thread_position_in_grid ]]) {
+    
+    if (position.x &gt; outSize.x || position.y &gt; outSize.y) {
+        return;
+    }
+    
+    uint idx = position.y * outSize.x + position.x;
+    outBuffer[idx] = idx;
+}
+</code></pre><p>常用的内建标识有：</p><ul><li><p><code>uint2 [[ thread_position_in_grid ]]</code> 当次计算的 <strong>线程</strong> 在计算 <strong>网格</strong> 的位置</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612154222.png alt></p><p>具体在红点的位置，该值就是 <code>uint2(9, 10)</code></p></li><li><p><code>uint2 [[ threadgroup_position_in_grid ]]</code> 当次计算所属的 <strong>线程组</strong> 在 <strong>网格</strong> 的位置</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612154613.png alt></p><p>具体在红点的位置，该值就是 <code>uint2(1, 2)</code></p></li><li><p><code>uint2 [[ thread_position_in_threadgroup ]]</code> 当次计算的 <strong>线程</strong> 在 <strong>线程组</strong> 的位置</p><p>和上图一样，恰好也是 <code>uint2(1, 2)</code></p></li><li><p><code>uint2 [[ threads_per_threadgroup ]]</code> 每个线程组线程的 <strong>数量</strong></p><p>上面两个图的都是返回 <code>uint2(8, 4)</code></p></li></ul><p>他们 4 者是有转化关系的：</p><pre><code>thread_position_in_grid = threadgroup_position_in_grid * threads_per_threadgroup + thread_position_in_threadgroup
+</code></pre><p>即</p><p><code>(9, 10) = (1 * 8 + 1, 2 * 4 + 2)</code></p><h3 id=2d-计算组的网格分布>2D 计算组的网格分布</h3><p>一般来说，比如对图片处理的网格分布，网格都是 2D 的。</p><p>根据设备的不同，<code>MTLComputePipelineState</code> 会有最佳的执行线程数量和线程组最大的可执行线程数量：</p><ul><li><p><code>threadExecutionWidth</code> 最有效率的线程执行宽度，最好是该返回值的倍数</p></li><li><p><code>maxTotalThreadsPerThreadgroup</code> 每个线程组最多可以有多少个线程</p></li></ul><p>这样就可以得出我们线程的 <strong>线程组分布</strong> ：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    NSUInteger w <span style=color:#f92672>=</span> _computePipelineState.threadExecutionWidth; <span style=color:#75715e>// 最有效率的线程执行宽度
+</span><span style=color:#75715e></span>    NSUInteger h <span style=color:#f92672>=</span> _computePipelineState.maxTotalThreadsPerThreadgroup <span style=color:#f92672>/</span> w; <span style=color:#75715e>// 每个线程组最多的线程数量
+</span><span style=color:#75715e></span>    
+    _threadsPerThreadGroup <span style=color:#f92672>=</span> MTLSizeMake(w,
+                                         h,
+                                         <span style=color:#ae81ff>1</span>);
+</code></pre></div><p>然后可以根据上面的 <code>w & h</code> 以及要计算的总宽高 <code>totalWidth & totalHeight</code> 计算出线程组在 <strong>计算网格的分布</strong>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    _threadgroupsPerGrid <span style=color:#f92672>=</span> MTLSizeMake((totalWidth <span style=color:#f92672>+</span> w <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> w,
+                                       (totalHeight <span style=color:#f92672>+</span> h <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> h,
+                                       <span style=color:#ae81ff>1</span>);
+</code></pre></div><p>此处计算的结果是 <strong>大于等于</strong> 实际用到的线程组分布的但是最终的分布依然会是一个矩形，多余的部分会在最后（最右或者最底）进行 padding。</p><p>比如说，一个 11x7 的图片，每个线程组分布的 size 为 4x4x1，那么根据上面的计算，计算得线程组在网格分布如下：</p><pre><code>    totalWidth = 11
+    totalHeight = 7
+    w = h = 4
+    
+    _threadgroupsPerGrid.w = (totalWidth + w - 1) / w = (14 / 4) = 3
+    _threadgroupsPerGrid.h = (totalHeight + h - 1) / h = (11 / 4) = 2
+</code></pre><p>得到线程组在网格的分布为 3x2，总网格的大小是 <code>4x4 * 3*2 = 12x8</code>，相比 11x7 在最右和最后作 padding：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612183022.png alt></p><p>红框的就是 padding 的线程，是无用的，因此在 <strong>shader 计算的时候需要剔除它们</strong>。</p><pre><code class=language-HLSL data-lang=HLSL>kernel
+void ComputeKernelShader(device uint *outBuffer [[ buffer(0) ]],
+                         constant uint2 &amp;outSize [[ buffer(1) ]],
+                         uint2 position [[ thread_position_in_grid ]]) {
+    
+    if (position.x &gt;= outSize.x || position.y &gt;= outSize.y) {
+        return;
+    }
+    
+    // .......
+}
+</code></pre><p>当超越了边界的时候，直接 <code>return</code>，说明本次 shader 调用是无用的，不参与到计算中。</p><h2 id=三通用计算-demo-完整解析>三、通用计算 Demo 完整解析</h2><p>本 demo 的目的是将 1024x1024 的二维数组从左到右从上到下 +1 递增排列，如下图所示。</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612151316.png alt></p><p>demo 比较简单，旨在理解 Metal 通用计算的流程。</p><p>最终验证打印的结果如下：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/20200612191104.png alt></p><p>使用 Metal 进行通用计算共有如下步骤：</p><h3 id=1配置-metal-setupmetal>1、配置 Metal <code>setupMetal</code></h3><p>这一步配置 Metal 的 Device 以及申请一个指令队列</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupMetal</span> {
+    
+    _device <span style=color:#f92672>=</span> MTLCreateSystemDefaultDevice();
+    
+    _queue <span style=color:#f92672>=</span> [_device newCommandQueue];
+}
+</code></pre></div><h3 id=2配置计算管线-setupcomputepipeline>2、配置计算管线 <code>setupComputePipeline</code></h3><p>使用在 <code>.metal</code> 文件声明的 <code>kernel</code> 函数，配置到计算管道中</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupComputePipeline</span> {
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLLibrary<span style=color:#f92672>&gt;</span> library <span style=color:#f92672>=</span> [_device newDefaultLibrary];
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLFunction<span style=color:#f92672>&gt;</span> kernelFunc <span style=color:#f92672>=</span> [library newFunctionWithName: <span style=color:#e6db74>@&#34;ComputeKernelShader&#34;</span>];
+    
+    NSError <span style=color:#f92672>*</span>err;
+    _computePipelineState <span style=color:#f92672>=</span> [_device newComputePipelineStateWithFunction: kernelFunc error: <span style=color:#f92672>&amp;</span>err];
+    
+    NSAssert(_computePipelineState <span style=color:#f92672>!=</span> nil, <span style=color:#e6db74>@&#34;Failed to create pipeline state: %@&#34;</span>, err);
+}
+</code></pre></div><h3 id=3构造输出的缓冲区-createoutputbuffer>3、构造输出的缓冲区 <code>createOutputBuffer</code></h3><p>计算的结果我们保存在一个缓冲区 <code>MTLBuffer</code> 中，这里先申请一个后续传入给 GPU 进行写入保存计算结果</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>createOutputBuffer</span> {
+    
+    _outputBuffer <span style=color:#f92672>=</span> [_device newBufferWithLength: _outW <span style=color:#f92672>*</span> _outH <span style=color:#f92672>*</span> <span style=color:#66d9ef>sizeof</span>(uint32_t)
+                                         options: MTLResourceStorageModeShared];
+}
+</code></pre></div><p>有如下注意：</p><ul><li><p>kernel 中的 uint 使用的是 C 类型的 <code>UInt32</code>，所以申请的字节长度是 <code>_outW * _outH * sizeof(uint32_t)</code></p></li><li><p>该 Buffer 需要被 CPU 和 GPU 都访问，因此其 options 使用 <code>MTLResourceStorageModeShared</code></p></li></ul><h3 id=4配置计算线程组-setupthreadgroups>4、配置计算线程组 <code>setupThreadGroups</code></h3><p>根据 <strong>要计算的网格大小</strong> ，此处是 1024x1024 配置线程组，在第二节的时候已经详述了，</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupThreadGroups:</span> (NSUInteger)totalWidth <span style=color:#a6e22e>totalHeight:</span> (NSUInteger)totalHeight {
+    
+    <span style=color:#75715e>// Refer apple doc
+</span><span style=color:#75715e></span>    <span style=color:#75715e>// https://developer.apple.com/documentation/metal/calculating_threadgroup_and_grid_sizes?language=objc
+</span><span style=color:#75715e></span>    
+    NSUInteger w <span style=color:#f92672>=</span> _computePipelineState.threadExecutionWidth; <span style=color:#75715e>// 最有效率的线程执行宽度
+</span><span style=color:#75715e></span>    NSUInteger h <span style=color:#f92672>=</span> _computePipelineState.maxTotalThreadsPerThreadgroup <span style=color:#f92672>/</span> w; <span style=color:#75715e>// 每个线程组最多的线程数量
+</span><span style=color:#75715e></span>    
+    _threadsPerThreadGroup <span style=color:#f92672>=</span> MTLSizeMake(w,
+                                         h,
+                                         <span style=color:#ae81ff>1</span>);
+    
+    _threadgroupsPerGrid <span style=color:#f92672>=</span> MTLSizeMake((totalWidth <span style=color:#f92672>+</span> w <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> w,
+                                       (totalHeight <span style=color:#f92672>+</span> h <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> h,
+                                       <span style=color:#ae81ff>1</span>);
+}
+</code></pre></div><h3 id=5执行计算-compute>5、执行计算 <code>compute</code></h3><p>最后是使用 Command Buffer 将 GPU 指令组装成 Encoder，这里是 <code>MTLComputeCommandEncoder</code>，最后提交给 GPU 计算。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>compute</span> {
+    
+    simd_uint2 outSize <span style=color:#f92672>=</span> simd_make_uint2((uint32_t)_outW, (uint32_t)_outH);
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLCommandBuffer<span style=color:#f92672>&gt;</span> commandBuffer <span style=color:#f92672>=</span> [_queue commandBuffer];
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLComputeCommandEncoder<span style=color:#f92672>&gt;</span> encoder <span style=color:#f92672>=</span> [commandBuffer computeCommandEncoder];
+    
+    [encoder setComputePipelineState: _computePipelineState];
+    
+    [encoder setBuffer: _outputBuffer offset: <span style=color:#ae81ff>0</span> atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setBytes: <span style=color:#f92672>&amp;</span>outSize length: <span style=color:#66d9ef>sizeof</span>(simd_uint2) atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder dispatchThreadgroups: _threadgroupsPerGrid threadsPerThreadgroup: _threadsPerThreadGroup];
+    
+    [encoder endEncoding];
+    
+    
+    [commandBuffer addCompletedHandler:<span style=color:#f92672>^</span>(<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLCommandBuffer<span style=color:#f92672>&gt;</span> _Nonnull cmd) {
+        NSLog(<span style=color:#e6db74>@&#34;Finish Computing.&#34;</span>);
+    }];
+    
+    [commandBuffer commit];
+    
+    [commandBuffer waitUntilCompleted];
+}
+</code></pre></div><p>具体如下</p><ul><li><p>申请 Command Buffer</p></li><li><p>申请 Command Encoder</p></li><li><p>配置 Encoder</p><ul><li><p>配置计算管道 <code>_computePipelineState</code> 到 Encoder</p></li><li><p>配置资源到 Encoder</p><ul><li><p>配置 Buffer</p></li><li><p>配置 Texture (本 demo 不需要)</p></li></ul></li></ul></li><li><p>分配计算任务到线程组</p></li><li><p>提交 Buffer</p></li></ul><p>注意：</p><p>为了等计算结束再进行读取，我们需要让线程等待</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    [commandBuffer addCompletedHandler:<span style=color:#f92672>^</span>(<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLCommandBuffer<span style=color:#f92672>&gt;</span> _Nonnull cmd) {
+        NSLog(<span style=color:#e6db74>@&#34;Finish Computing.&#34;</span>);
+    }];
+    
+    [commandBuffer commit];
+    
+    [commandBuffer waitUntilCompleted];
+</code></pre></div><ul><li><p><code>addCompletedHandler</code> 配置完成的回调</p></li><li><p><code>waitUntilCompleted</code> 等待执行完成再返回</p></li></ul><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/metal/>Metal</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f&text=Metal%20-%2011%20GPGPU%20%e9%80%9a%e7%94%a8%e8%ae%a1%e7%ae%97%ef%bc%88Compute%20Shader%ef%bc%89&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f&title=Metal%20-%2011%20GPGPU%20%e9%80%9a%e7%94%a8%e8%ae%a1%e7%ae%97%ef%bc%88Compute%20Shader%ef%bc%89" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f&title=Metal%20-%2011%20GPGPU%20%e9%80%9a%e7%94%a8%e8%ae%a1%e7%ae%97%ef%bc%88Compute%20Shader%ef%bc%89" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f&title=Metal%20-%2011%20GPGPU%20%e9%80%9a%e7%94%a8%e8%ae%a1%e7%ae%97%ef%bc%88Compute%20Shader%ef%bc%89" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-11-generic-purpose-computing%2f&description=Metal%20-%2011%20GPGPU%20%e9%80%9a%e7%94%a8%e8%ae%a1%e7%ae%97%ef%bc%88Compute%20Shader%ef%bc%89" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>也可以看看</h4><ul><li><a href=/post/blog/metal/metal-10-phong-lighting/>Metal - 10 光照（冯氏光照模型）</a></li><li><a href=/post/blog/metal/metal-9-render-camera-yuv-by-texture-cache/>Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/>Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-7-rotatingcube/>Metal - 7 旋转的立方体</a></li><li><a href=/post/blog/metal/metal-6-three-dimentions-transformation/>Metal - 6 三维变换</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/metal/metal-10-phong-lighting/ data-toggle=tooltip data-placement=top title="Metal - 10 光照（冯氏光照模型）">&larr; 前一篇</a></li></ul><span id=/post/blog/metal/metal-11-generic-purpose-computing/ class=leancloud_visitors data-flag-title="Metal - 11 GPGPU 通用计算（Compute Shader）"><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted">由 <a href=https://gohugo.io>Hugo v0.69.2</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> 移植自 <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
