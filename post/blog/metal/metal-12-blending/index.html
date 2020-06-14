@@ -1,0 +1,219 @@
+<!doctype html><html lang=zh itemscope itemtype=http://schema.org/WebPage><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><title>Metal - 12 混合（Alpha Blending） - Kim's Blog</title><meta name=description content="和 OpenGL ES 一样，Metal 也 “不知道” 该如何去处理透明度，需要我们指定 混合参数（Blending Factor），以及 混合操作（Blending Operations），才能正确地处理两种颜色的混合。
+完整代码可以访问 仓库 的 11.混合。"><meta name=author content="Kim"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","name":"Kim\x27s Blog","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Organization","name":"","url":"https:\/\/www.uiimage.com\/"}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/www.uiimage.com\/","name":"home"}},{"@type":"ListItem","position":3,"item":{"@id":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-12-blending\/","name":"Metal 12 混合（ alpha blending）"}}]}</script><script type=application/ld+json>{"@context":"http://schema.org","@type":"Article","author":{"name":"Kim"},"headline":"Metal - 12 混合（Alpha Blending）","description":"和 OpenGL ES 一样，Metal 也 “不知道” 该如何去处理透明度，需要我们指定 混合参数（Blending Factor），以及 混合操作（Blending Operations），才能正确地处理两种颜色的混合。\n完整代码可以访问 仓库 的 11.混合。\n","inLanguage":"zh","wordCount":1052,"datePublished":"2020-06-13T23:00:00","dateModified":"2020-06-13T23:00:00","image":"https:\/\/www.uiimage.com\/img\/avatar.JPG","keywords":["iOS, Metal, 音视频"],"mainEntityOfPage":"https:\/\/www.uiimage.com\/post\/blog\/metal\/metal-12-blending\/","publisher":{"@type":"Organization","name":"https:\/\/www.uiimage.com\/","logo":{"@type":"ImageObject","url":"https:\/\/www.uiimage.com\/img\/avatar.JPG","height":60,"width":60}}}</script><meta property="og:title" content="Metal - 12 混合（Alpha Blending）"><meta property="og:description" content="和 OpenGL ES 一样，Metal 也 “不知道” 该如何去处理透明度，需要我们指定 混合参数（Blending Factor），以及 混合操作（Blending Operations），才能正确地处理两种颜色的混合。
+完整代码可以访问 仓库 的 11.混合。"><meta property="og:image" content="https://www.uiimage.com/img/avatar.JPG"><meta property="og:url" content="https://www.uiimage.com/post/blog/metal/metal-12-blending/"><meta property="og:type" content="website"><meta property="og:site_name" content="Kim's Blog"><meta name=twitter:title content="Metal - 12 混合（Alpha Blending）"><meta name=twitter:description content="和 OpenGL ES 一样，Metal 也 “不知道” 该如何去处理透明度，需要我们指定 混合参数（Blending Factor），以及 混合操作（Blending Operations），才能正确地处理两种颜色的混合。
+完整代码可以访问 仓库 的 11.混合。"><meta name=twitter:image content="https://www.uiimage.com/img/avatar.JPG"><meta name=twitter:card content="summary"><link href=https://www.uiimage.com/img/avatar.JPG rel=icon type=image/x-icon><meta name=generator content="Hugo 0.69.2"><link rel=alternate href=https://www.uiimage.com/index.xml type=application/rss+xml title="Kim's Blog"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css integrity=sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.5.0/css/all.css integrity=sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU crossorigin=anonymous><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css integrity=sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u crossorigin=anonymous><link rel=stylesheet href=https://www.uiimage.com/css/main.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"><link rel=stylesheet href=https://www.uiimage.com/css/syntax.css><link rel=stylesheet href=https://www.uiimage.com/css/codeblock.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css integrity=sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css integrity=sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css></head><body><nav class="navbar navbar-default navbar-fixed-top navbar-custom"><div class=container-fluid><div class=navbar-header><button type=button class=navbar-toggle data-toggle=collapse data-target=#main-navbar>
+<span class=sr-only>切换导航</span>
+<span class=icon-bar></span><span class=icon-bar></span><span class=icon-bar></span></button>
+<a class=navbar-brand href=https://www.uiimage.com/>Kim's Blog</a></div><div class="collapse navbar-collapse" id=main-navbar><ul class="nav navbar-nav navbar-right"><li><a title=Home href=/>Home</a></li><li><a title=Tags href=/tags>Tags</a></li><li><a title=About href=/page/about/>About</a></li></ul></div><div class=avatar-container><div class=avatar-img-border><a title="Kim's Blog" href=https://www.uiimage.com/><img class=avatar-img src=https://www.uiimage.com/img/avatar.JPG alt="Kim's Blog"></a></div></div></div></nav><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header class=header-section><div class="intro-header no-img"><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><div class=post-heading><h1>Metal - 12 混合（Alpha Blending）</h1><span class=post-meta><i class="fas fa-calendar"></i>&nbsp;发表于 June 13, 2020
+&nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;5&nbsp;分钟
+&nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1052&nbsp;个字
+&nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Kim</span></div></div></div></div></div></header><div class=container role=main><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><aside class=toc-article><nav id=TableOfContents><ul><li><a href=#一绘制两个交错的矩形>一、绘制两个交错的矩形</a><ul><li><a href=#1创建颜色的纹理>1、创建颜色的纹理</a></li><li><a href=#2构建两个渲染管道>2、构建两个渲染管道</a></li><li><a href=#3绘制两个矩形>3、绘制两个矩形</a></li></ul></li><li><a href=#二metal-的透明度混合-alpha-blending>二、Metal 的透明度混合 <code>Alpha Blending</code></a><ul><li><a href=#1metal-开启混合>1、Metal 开启混合</a></li><li><a href=#2混合操作operation--混合因子factor>2、混合操作(Operation) & 混合因子(factor)</a></li><li><a href=#3举本-demo-的混合为例子>3、举本 demo 的混合为例子</a></li></ul></li><li><a href=#总结>总结</a></li></ul></nav></aside><article role=main class=blog-post><p>和 OpenGL ES 一样，Metal 也 “不知道” 该如何去处理透明度，需要我们指定 <strong>混合参数（Blending Factor）</strong>，以及 <strong>混合操作（Blending Operations）</strong>，才能正确地处理两种颜色的混合。</p><p>完整代码可以访问 <a href=https://github.com/SourceKim/MetalTest>仓库</a> 的 <code>11.混合</code>。</p><p>本文要实现的 demo 效果是绘制一个红色不透明（alpha = 1），以及一个绿色半透明（alpha = 0.5）的矩形，使用 Metal 处理透明度，让他们交错的部分进行颜色混合。</p><p>最终实现的效果如下：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/metal_blending.png alt></p><h2 id=一绘制两个交错的矩形>一、绘制两个交错的矩形</h2><p>先不使用混合，在 metal 中绘制两个交错的矩形。</p><p>有如下步骤：</p><h3 id=1创建颜色的纹理>1、创建颜色的纹理</h3><p>封装一个通过 <code>UIColor</code> 和 <code>alpha</code> 得到纯色 <code>UIImage</code> 的函数：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#75715e>#pragma mark - Create pure color images
+</span><span style=color:#75715e></span>
+- (UIImage <span style=color:#f92672>*</span>)<span style=color:#a6e22e>createPureColorImage:</span> (UIColor <span style=color:#f92672>*</span>)color
+                            <span style=color:#a6e22e>alpha:</span> (CGFloat)alpha {
+    
+    UIColor <span style=color:#f92672>*</span>colorWithAlpha <span style=color:#f92672>=</span> [color colorWithAlphaComponent: alpha];
+    
+    CGRect rect <span style=color:#f92672>=</span> CGRectMake(<span style=color:#ae81ff>0.0f</span>, <span style=color:#ae81ff>0.0f</span>, <span style=color:#ae81ff>1.0f</span>, <span style=color:#ae81ff>1.0f</span>);
+    UIGraphicsBeginImageContextWithOptions(rect.size, false, <span style=color:#ae81ff>0</span>);
+    CGContextRef context <span style=color:#f92672>=</span> UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [colorWithAlpha CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage <span style=color:#f92672>*</span>theImage <span style=color:#f92672>=</span> UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    <span style=color:#66d9ef>return</span> theImage;
+}
+</code></pre></div><p>然后调用该函数生成两个 <code>UIImage</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    _redImage <span style=color:#f92672>=</span> [self createPureColorImage: UIColor.redColor alpha: <span style=color:#ae81ff>1</span>]; <span style=color:#75715e>// 红色不透明
+</span><span style=color:#75715e></span>    _greenImage <span style=color:#f92672>=</span> [self createPureColorImage: UIColor.greenColor alpha: <span style=color:#ae81ff>0.5</span>]; <span style=color:#75715e>// 绿色是半透明的
+</span></code></pre></div><p>利用前面的 <code>MetalUtils</code> 的 UIImage 转 <code>MTLTexture</code> 的函数转换成两个纹理</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    _texture0 <span style=color:#f92672>=</span> [MetalUtils loadImageTexture: _redImage device: _device usage: MTLTextureUsageShaderRead];
+    _texture1 <span style=color:#f92672>=</span> [MetalUtils loadImageTexture: _greenImage device: _device usage: MTLTextureUsageShaderRead];
+</code></pre></div><h3 id=2构建两个渲染管道>2、构建两个渲染管道</h3><p>分别为两个矩形构造一个渲染管道：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupRenderPipelines</span> {
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLLibrary<span style=color:#f92672>&gt;</span> library <span style=color:#f92672>=</span> [_device newDefaultLibrary];
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLFunction<span style=color:#f92672>&gt;</span> vertexFunc <span style=color:#f92672>=</span> [library newFunctionWithName: <span style=color:#e6db74>@&#34;BlendingVertexShader&#34;</span>];
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLFunction<span style=color:#f92672>&gt;</span> fragmentFunc <span style=color:#f92672>=</span> [library newFunctionWithName: <span style=color:#e6db74>@&#34;BlendingFragmentShader&#34;</span>];
+    
+    MTLRenderPipelineDescriptor <span style=color:#f92672>*</span>pipelineDescriptor <span style=color:#f92672>=</span> [MTLRenderPipelineDescriptor new];
+    pipelineDescriptor.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Render Pipeline&#34;</span>;
+    pipelineDescriptor.vertexFunction <span style=color:#f92672>=</span> vertexFunc;
+    pipelineDescriptor.fragmentFunction <span style=color:#f92672>=</span> fragmentFunc;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].pixelFormat <span style=color:#f92672>=</span> _layer.pixelFormat;
+    
+    <span style=color:#75715e>// Red image pipeline state
+</span><span style=color:#75715e></span>    NSError <span style=color:#f92672>*</span>err;
+    _renderPipelineState0 <span style=color:#f92672>=</span> [_device newRenderPipelineStateWithDescriptor: pipelineDescriptor error: <span style=color:#f92672>&amp;</span>err];
+    
+    NSAssert(_renderPipelineState0 <span style=color:#f92672>!=</span> nil, <span style=color:#e6db74>@&#34;Failed to create pipeline state: %@&#34;</span>, err);
+    
+    <span style=color:#75715e>// Green image pipeline state
+</span><span style=color:#75715e></span>    _renderPipelineState1 <span style=color:#f92672>=</span> [_device newRenderPipelineStateWithDescriptor: pipelineDescriptor error: <span style=color:#f92672>&amp;</span>err];
+    
+    NSAssert(_renderPipelineState1 <span style=color:#f92672>!=</span> nil, <span style=color:#e6db74>@&#34;Failed to create pipeline state: %@&#34;</span>, err);
+}
+</code></pre></div><p>两个管道使用同一个描述（<code>MTLRenderPipelineDescriptor</code>）去构造即可。</p><h3 id=3绘制两个矩形>3、绘制两个矩形</h3><p>两个矩形需要两个 <code>Draw Calls</code>，且参数是不一样的，但是 Command Queue & Command Buffer & Command Encoder 都使用一个即可。</p><p>渲染代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render</span> {
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>CAMetalDrawable<span style=color:#f92672>&gt;</span> currentDrawable <span style=color:#f92672>=</span> [_layer nextDrawable];
+    _renderTargetDesc.colorAttachments[<span style=color:#ae81ff>0</span>].texture <span style=color:#f92672>=</span> currentDrawable.texture;
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLCommandBuffer<span style=color:#f92672>&gt;</span> commandBuffer <span style=color:#f92672>=</span> [_queue commandBuffer];
+    commandBuffer.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Command Buffer&#34;</span>;
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span> encoder <span style=color:#f92672>=</span> [commandBuffer renderCommandEncoderWithDescriptor: _renderTargetDesc];
+    encoder.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Render Command Encoder&#34;</span>;
+    
+    [encoder setViewport: (MTLViewport) {
+        .originX <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
+        .originY <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
+        .width <span style=color:#f92672>=</span> _layer.drawableSize.width,
+        .height <span style=color:#f92672>=</span> _layer.drawableSize.height,
+        .znear <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
+        .zfar <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+    }];
+    
+    [self render_red: encoder];
+    
+    [self render_green: encoder];
+    
+    [encoder endEncoding];
+    
+    [commandBuffer presentDrawable: currentDrawable];
+    
+    [commandBuffer commit];
+}
+</code></pre></div><p>两次 <code>Draw Call</code>，分别使用不同的 <code>RenderPipelineState</code> 和不同的 <code>texture</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render_red:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span>)encoder {
+    
+    [encoder setRenderPipelineState: _renderPipelineState0];
+    
+    [encoder setVertexBytes: vertices0
+                     length: <span style=color:#66d9ef>sizeof</span>(vertices0)
+                    atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setVertexBytes: texCoor
+                     length: <span style=color:#66d9ef>sizeof</span>(texCoor)
+                    atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder setFragmentTexture: _texture0
+                        atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder drawIndexedPrimitives: MTLPrimitiveTypeTriangle
+                        indexCount: <span style=color:#ae81ff>6</span>
+                         indexType: MTLIndexTypeUInt32
+                       indexBuffer: _indexBuffer
+                 indexBufferOffset: <span style=color:#ae81ff>0</span>];
+}
+
+- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>render_green:</span> (<span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLRenderCommandEncoder<span style=color:#f92672>&gt;</span>)encoder {
+    
+    [encoder setRenderPipelineState: _renderPipelineState1];
+    
+    [encoder setVertexBytes: vertices1
+                     length: <span style=color:#66d9ef>sizeof</span>(vertices1)
+                    atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder setVertexBytes: texCoor
+                     length: <span style=color:#66d9ef>sizeof</span>(texCoor)
+                    atIndex: <span style=color:#ae81ff>1</span>];
+    
+    [encoder setFragmentTexture: _texture1
+                        atIndex: <span style=color:#ae81ff>0</span>];
+    
+    [encoder drawIndexedPrimitives: MTLPrimitiveTypeTriangle
+                        indexCount: <span style=color:#ae81ff>6</span>
+                         indexType: MTLIndexTypeUInt32
+                       indexBuffer: _indexBuffer
+                 indexBufferOffset: <span style=color:#ae81ff>0</span>];
+}
+</code></pre></div><p>调用 <code>render</code>，如无意外可以看到效果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/metal-blending-no-blend.png alt></p><p>可以看出来，虽然我们绿色的 <code>texture</code> 的 alpha 明明是 0.5，缺不能透过它看到后面的背景色，以及在交错的部分也看不到红色的部分。</p><p>这个时候，就需要使用 <strong>透明度混合 <code>Alpha Blending</code></strong> 技术，自行去处理半透明的矩形。</p><h2 id=二metal-的透明度混合-alpha-blending>二、Metal 的透明度混合 <code>Alpha Blending</code></h2><p>在 Metal 中，透明度混合是在渲染管道状态 <code>RenderPipelineState</code> 中设置的，<code>RenderPipelineState</code> 的构建又依赖于其描述对象 <code>MTLRenderPipelineDescriptor</code>，因此我们需要修改的是 <strong>绿色矩形渲染时候的渲染管道描述对象</strong>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>- (<span style=color:#66d9ef>void</span>)<span style=color:#a6e22e>setupRenderPipelines</span> {
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLLibrary<span style=color:#f92672>&gt;</span> library <span style=color:#f92672>=</span> [_device newDefaultLibrary];
+    
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLFunction<span style=color:#f92672>&gt;</span> vertexFunc <span style=color:#f92672>=</span> [library newFunctionWithName: <span style=color:#e6db74>@&#34;BlendingVertexShader&#34;</span>];
+    <span style=color:#66d9ef>id</span><span style=color:#f92672>&lt;</span>MTLFunction<span style=color:#f92672>&gt;</span> fragmentFunc <span style=color:#f92672>=</span> [library newFunctionWithName: <span style=color:#e6db74>@&#34;BlendingFragmentShader&#34;</span>];
+    
+    MTLRenderPipelineDescriptor <span style=color:#f92672>*</span>pipelineDescriptor <span style=color:#f92672>=</span> [MTLRenderPipelineDescriptor new];
+    pipelineDescriptor.label <span style=color:#f92672>=</span> <span style=color:#e6db74>@&#34;Render Pipeline&#34;</span>;
+    pipelineDescriptor.vertexFunction <span style=color:#f92672>=</span> vertexFunc;
+    pipelineDescriptor.fragmentFunction <span style=color:#f92672>=</span> fragmentFunc;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].pixelFormat <span style=color:#f92672>=</span> _layer.pixelFormat;
+    
+    <span style=color:#75715e>// Red image pipeline state
+</span><span style=color:#75715e></span>    NSError <span style=color:#f92672>*</span>err;
+    _renderPipelineState0 <span style=color:#f92672>=</span> [_device newRenderPipelineStateWithDescriptor: pipelineDescriptor error: <span style=color:#f92672>&amp;</span>err];
+    
+    NSAssert(_renderPipelineState0 <span style=color:#f92672>!=</span> nil, <span style=color:#e6db74>@&#34;Failed to create pipeline state: %@&#34;</span>, err);
+    
+    <span style=color:#75715e>// Green image pipeline state
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>// 1. setup color &amp; alpha factor
+</span><span style=color:#75715e></span>    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].blendingEnabled <span style=color:#f92672>=</span> true;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].rgbBlendOperation <span style=color:#f92672>=</span> MTLBlendOperationAdd;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].alphaBlendOperation <span style=color:#f92672>=</span> MTLBlendOperationAdd;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].sourceRGBBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].sourceAlphaBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].destinationRGBBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorOneMinusSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].destinationAlphaBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorOneMinusSourceAlpha;
+    
+    <span style=color:#75715e>// 2. Use new descriptor to generate green pipeline state
+</span><span style=color:#75715e></span>    _renderPipelineState1 <span style=color:#f92672>=</span> [_device newRenderPipelineStateWithDescriptor: pipelineDescriptor error: <span style=color:#f92672>&amp;</span>err];
+    
+    NSAssert(_renderPipelineState1 <span style=color:#f92672>!=</span> nil, <span style=color:#e6db74>@&#34;Failed to create pipeline state: %@&#34;</span>, err);
+}
+</code></pre></div><p>上述的构造渲染管道方法改成这样，多出了一段</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc>    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].blendingEnabled <span style=color:#f92672>=</span> true;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].rgbBlendOperation <span style=color:#f92672>=</span> MTLBlendOperationAdd;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].alphaBlendOperation <span style=color:#f92672>=</span> MTLBlendOperationAdd;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].sourceRGBBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].sourceAlphaBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].destinationRGBBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorOneMinusSourceAlpha;
+    pipelineDescriptor.colorAttachments[<span style=color:#ae81ff>0</span>].destinationAlphaBlendFactor <span style=color:#f92672>=</span> MTLBlendFactorOneMinusSourceAlpha;
+</code></pre></div><p>在我们使用完无 blending 的 <code>pipelineDescriptor</code> 去构造红色矩形的渲染管道状态即 <code>_renderPipelineState0</code> 之后，我们为这个这个 <code>pipelineDescriptor</code> 增加了开启混合以及设置混合参数的描述，然后再去构造我们的绿色矩形的渲染管道状态即 <code>_renderPipelineState1</code>。</p><p>这样在 <code>render_green:</code> 的时候就支持透明度混合的处理了。</p><h3 id=1metal-开启混合>1、Metal 开启混合</h3><p>通过设置 <code>blendingEnabled</code> 即可 开启 / 关闭 混合</p><h3 id=2混合操作operation--混合因子factor>2、混合操作(Operation) & 混合因子(factor)</h3><p>在开启混合之后，需要制定一套混合规则，来 <strong>得到最后的颜色</strong>，这个颜色不仅包含 RGB 值，也有 alpha 值。</p><pre><code>RGB_Final = F ( RGB_Source * RGB_Source_Factor, RGB_Destination * RGB_Destination_Factor )
+
+A_Final = G ( A_Source * A_Source_Factor, A_Destination * A_Destination_Factor)
+</code></pre><p>上面包含各种各样参数，看似很复杂，实际还行，让我们一个看：</p><ul><li><p>结果（Final），代表最终得到的值</p><ul><li><p><code>RGB_Final</code> 最终得到的 RGB 值</p></li><li><p><code>A_Final</code> 最终得到的 A 值</p></li></ul></li><li><p>操作（Operation），如何计算</p><ul><li><p><code>F</code> 计算 RGB 的规则，通过 Attachment 的 <code>rgbBlendOperation</code> 来设值</p></li><li><p><code>G</code> 计算 A 的规则，通过 Attachment 的 <code>alphaBlendOperation</code> 来设值</p></li></ul></li><li><p>输入，要计算的基础颜色</p><ul><li><p><code>RGB_Source</code> 代表即将要绘制的颜色值（本 demo 是绿色）</p></li><li><p><code>RGB_Destination</code> 代表 Framebuffer 原有的颜色值（本 demo 是红色，因为先绘制了红色）</p></li><li><p><code>A_Source</code> 代表即将要绘制的颜色的透明度（本 demo 是 0.5）</p></li><li><p><code>A_Destination</code> 代表 Framebuffer 原有的颜色的透明度（本 demo 是 1）</p></li></ul></li><li><p>混合因子（Factor），混合的关键，该值要与输入进行相乘</p><ul><li><p><code>RGB_Source_Factor</code> 源颜色因子，将与 RGB_Source 相乘，通过 Attachment 的 <code>sourceRGBBlendFactor</code> 来设值</p></li><li><p><code>RGB_Destination_Factor</code> 目标颜色因子，将与 RGB_Destination 相乘，通过 Attachment 的 <code>destinationRGBBlendFactor</code> 来设值</p></li><li><p><code>A_Source_Factor</code> 源透明度因子，将与 A_Source 相乘，通过 Attachment 的 <code>sourceAlphaBlendFactor</code> 来设值</p></li><li><p><code>A_Destination_Factor</code> 目标透明度因子，将与 A_Destination 相乘，通过 Attachment 的 <code>destinationAlphaBlendFactor</code> 来设值</p></li></ul></li></ul><p>混合操作（Operation）的枚举定义如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>typedef</span> <span style=color:#a6e22e>NS_ENUM</span>(NSUInteger, MTLBlendOperation) {
+    MTLBlendOperationAdd <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
+    MTLBlendOperationSubtract <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
+    MTLBlendOperationReverseSubtract <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>,
+    MTLBlendOperationMin <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>,
+    MTLBlendOperationMax <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>,
+} API_AVAILABLE(macos(<span style=color:#ae81ff>10.11</span>), ios(<span style=color:#ae81ff>8.0</span>));
+</code></pre></div><ul><li><code>MTLBlendOperationAdd</code> 相加</li><li><code>MTLBlendOperationSubtract</code> 相减 （Source - Destination）</li><li><code>MTLBlendOperationReverseSubtract</code> 相减 （Destination - Source）</li><li><code>MTLBlendOperationMin</code> 取更小的</li><li><code>MTLBlendOperationMax</code> 取更大的</li></ul><p>混合因子（Factor）的枚举定义如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-objc data-lang=objc><span style=color:#66d9ef>typedef</span> <span style=color:#a6e22e>NS_ENUM</span>(NSUInteger, MTLBlendFactor) {
+    MTLBlendFactorZero <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>,
+    MTLBlendFactorOne <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
+    MTLBlendFactorSourceColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>,
+    MTLBlendFactorOneMinusSourceColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>,
+    MTLBlendFactorSourceAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>,
+    MTLBlendFactorOneMinusSourceAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>,
+    MTLBlendFactorDestinationColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>6</span>,
+    MTLBlendFactorOneMinusDestinationColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>7</span>,
+    MTLBlendFactorDestinationAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>8</span>,
+    MTLBlendFactorOneMinusDestinationAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>9</span>,
+    MTLBlendFactorSourceAlphaSaturated <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>,
+    MTLBlendFactorBlendColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>11</span>,
+    MTLBlendFactorOneMinusBlendColor <span style=color:#f92672>=</span> <span style=color:#ae81ff>12</span>,
+    MTLBlendFactorBlendAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>13</span>,
+    MTLBlendFactorOneMinusBlendAlpha <span style=color:#f92672>=</span> <span style=color:#ae81ff>14</span>,
+    MTLBlendFactorSource1Color              API_AVAILABLE(macos(<span style=color:#ae81ff>10.12</span>), ios(<span style=color:#ae81ff>10.11</span>)) <span style=color:#f92672>=</span> <span style=color:#ae81ff>15</span>,
+    MTLBlendFactorOneMinusSource1Color      API_AVAILABLE(macos(<span style=color:#ae81ff>10.12</span>), ios(<span style=color:#ae81ff>10.11</span>)) <span style=color:#f92672>=</span> <span style=color:#ae81ff>16</span>,
+    MTLBlendFactorSource1Alpha              API_AVAILABLE(macos(<span style=color:#ae81ff>10.12</span>), ios(<span style=color:#ae81ff>10.11</span>)) <span style=color:#f92672>=</span> <span style=color:#ae81ff>17</span>,
+    MTLBlendFactorOneMinusSource1Alpha      API_AVAILABLE(macos(<span style=color:#ae81ff>10.12</span>), ios(<span style=color:#ae81ff>10.11</span>)) <span style=color:#f92672>=</span> <span style=color:#ae81ff>18</span>,
+} API_AVAILABLE(macos(<span style=color:#ae81ff>10.11</span>), ios(<span style=color:#ae81ff>8.0</span>));
+</code></pre></div><p>混合因子可以看作是一组向量，如果是 rgb 的混合因子，该向量有三个值，如果是 alpha，则只有一个值</p><p>常量，0 & 1</p><ul><li><code>MTLBlendFactorZero</code> (0, 0, 0)</li><li><code>MTLBlendFactorOne</code> (1, 1, 1)</li></ul><p>Source 相关</p><ul><li><code>MTLBlendFactorSourceColor</code> (SR, SG, SB)</li><li><code>MTLBlendFactorOneMinusSourceColor</code> (1 - SR, 1 - SG, 1 - SB)</li><li><code>MTLBlendFactorSourceAlpha</code> (SA, SA, SA)</li><li><code>MTLBlendFactorOneMinusSourceAlpha</code> (1 - SA, 1 - SA, 1 - SA)</li></ul><p>Destination 相关</p><ul><li><code>MTLBlendFactorDestinationColor</code> (DR, DG, DB)</li><li><code>MTLBlendFactorOneMinusDestinationColor</code> (1 - DR, 1 - DG, 1 - DB)</li><li><code>MTLBlendFactorDestinationAlpha</code> (DA, DA, DA)</li><li><code>MTLBlendFactorOneMinusDestinationAlpha</code> (1 - DA, 1 - DA, 1 - DA)</li></ul><p>Saturate</p><ul><li><p><code>MTLBlendFactorSourceAlphaSaturated</code> 透明度饱和混合</p><p>F(rgb) = min(Source.a, 1 - Dest.a)</p><p>F(a) = 1</p></li></ul><p>自定义混合颜色，通过 Encoder 的 <code>setBlendColorRed:green:blue:alpha:</code> 传入，得到 （BR, BG, BB, BA）</p><ul><li><code>MTLBlendFactorBlendColor</code> (BR, BG, BB)</li><li><code>MTLBlendFactorOneMinusBlendColor</code> (1 - BR, 1 - BG, 1 - BB)</li><li><code>MTLBlendFactorBlendAlpha</code> (BA, BA, BA)</li><li><code>MTLBlendFactorOneMinusBlendAlpha</code> (1 - BA, 1 - BA, 1 - BA)</li></ul><p>&mldr;.</p><p>剩下的新几个 Source1 不常用，用到再介绍。</p><h3 id=3举本-demo-的混合为例子>3、举本 demo 的混合为例子</h3><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/WeChat7a13e6a231e5f4fe2d7aa05e5a176e1a.png alt></p><p>交错部分的计算 RGB 计算：</p><p>红色是 (255, 0, 0)，alpha 是 1</p><p>绿色是 (0, 127, 0)，alpha 是 0.5，因为 iOS 中 CGContext 只支持 <strong>预乘</strong> 透明度，所以在将 UIImage 转成 Texture 的时候被预乘了，因此此处的绿色不太准确，应该是深绿色，而不是 （0, 255, 0）</p><p>即：</p><pre><code>RGB_Destination = (255, 0, 0)
+RGB_Source = (0, 127, 0)
+
+A_Destination = 1
+A_Source = 0.5
+</code></pre><p>源混合因子（<code>sourceRGBBlendFactor</code>）是 <code>MTLBlendFactorSourceAlpha</code></p><p>目标混合因子（<code>destinationRGBBlendFactor</code>） 是 <code>MTLBlendFactorOneMinusSourceAlpha</code></p><p>即：</p><pre><code>sourceRGBBlendFactor = A_source = 0.5
+destinationRGBBlendFactor = 1 - A_source = 0.5
+</code></pre><p>混合操作（<code>F</code>）是 <code>MTLBlendOperationAdd</code></p><p>最后可得：</p><pre><code>RGB_Final = RGB_Source * RGB_Source_Factor + RGB_Destination * RGB_Destination_Factor
+
+RGB_Final = (0, 127, 0) * 0.5 + (255, 0, 0) * 0.5 = (127, 68, 0)
+</code></pre><p>使用数码测色计测试一下结果：</p><p><img src=https://gitee.com/SourceKim/PictureBed/raw/master/img/metal-blending-test-color.png alt></p><p>可以看到交错部分的颜色值正是我们计算的结果。</p><h2 id=总结>总结</h2><p>Metal 的混合是通过设置渲染管道描述对象（<code>MTLRenderPipelineDescriptor</code>）的 Attachment 相关的属性完成的，最终会使用这个对象去创建一个渲染管道状态（<code>MTLRenderPipelineState</code>），然后将这个 state 设值给 Encoder，去完成对应的 <code>Draw Calls</code>。</p><p>注意一个 Encoder 可以有多个 <code>Draw Calls</code>，因此我们也可以在 <code>Draw calls</code> 之前先更新这个管道状态，再调用 <code>drawPrimitive:</code> 去绘制图元。</p><p>还有需要记住的一个点是，在混合中，<code>Source</code> 相关的参数代表的是 <strong>即将要绘制的图元的颜色</strong>，<code>Destination</code> 相关的参数是 <strong>已经存在 FrameBuffer 的颜色</strong>。</p><div class=blog-tags><a href=https://www.uiimage.com//tags/ios/>iOS</a>&nbsp;
+<a href=https://www.uiimage.com//tags/metal/>Metal</a>&nbsp;
+<a href=https://www.uiimage.com//tags/%E9%9F%B3%E8%A7%86%E9%A2%91/>音视频</a>&nbsp;</div><hr><section id=social-share><div class="list-inline footer-links"><div class=share-box aria-hidden=true><ul class=share><li><a href="//twitter.com/share?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f&text=Metal%20-%2012%20%e6%b7%b7%e5%90%88%ef%bc%88Alpha%20Blending%ef%bc%89&via=" target=_blank title="Share on Twitter"><i class="fab fa-twitter"></i></a></li><li><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook"></i></a></li><li><a href="//reddit.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f&title=Metal%20-%2012%20%e6%b7%b7%e5%90%88%ef%bc%88Alpha%20Blending%ef%bc%89" target=_blank title="Share on Reddit"><i class="fab fa-reddit"></i></a></li><li><a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f&title=Metal%20-%2012%20%e6%b7%b7%e5%90%88%ef%bc%88Alpha%20Blending%ef%bc%89" target=_blank title="Share on LinkedIn"><i class="fab fa-linkedin"></i></a></li><li><a href="//www.stumbleupon.com/submit?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f&title=Metal%20-%2012%20%e6%b7%b7%e5%90%88%ef%bc%88Alpha%20Blending%ef%bc%89" target=_blank title="Share on StumbleUpon"><i class="fab fa-stumbleupon"></i></a></li><li><a href="//www.pinterest.com/pin/create/button/?url=https%3a%2f%2fwww.uiimage.com%2fpost%2fblog%2fmetal%2fmetal-12-blending%2f&description=Metal%20-%2012%20%e6%b7%b7%e5%90%88%ef%bc%88Alpha%20Blending%ef%bc%89" target=_blank title="Share on Pinterest"><i class="fab fa-pinterest"></i></a></li></ul></div></div></section><h4 class=see-also>也可以看看</h4><ul><li><a href=/post/blog/metal/metal-11-generic-purpose-computing/>Metal - 11 GPGPU 通用计算（Compute Shader）</a></li><li><a href=/post/blog/metal/metal-10-phong-lighting/>Metal - 10 光照（冯氏光照模型）</a></li><li><a href=/post/blog/metal/metal-9-render-camera-yuv-by-texture-cache/>Metal - 9 渲染摄像头采集的 YUV(YCbCr) 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-8-render-camera-bgra-by-texture-cache/>Metal - 8 渲染摄像头采集的 BGRA 数据（CVMetalTextureCacheRef）</a></li><li><a href=/post/blog/metal/metal-7-rotatingcube/>Metal - 7 旋转的立方体</a></li></ul></article><ul class="pager blog-pager"><li class=previous><a href=https://www.uiimage.com/post/blog/metal/metal-11-generic-purpose-computing/ data-toggle=tooltip data-placement=top title="Metal - 11 GPGPU 通用计算（Compute Shader）">&larr; 前一篇</a></li></ul><span id=/post/blog/metal/metal-12-blending/ class=leancloud_visitors data-flag-title="Metal - 12 混合（Alpha Blending）"><p></p></span><div id=vcomments></div><script src=//cdn1.lncld.net/static/js/3.0.4/av-min.js></script><script src=//unpkg.com/valine/dist/Valine.min.js></script><script type=text/javascript>new Valine({el:'#vcomments',appId:'Ld2PPgvVUNucDd8KP4B0kNNB-gzGzoHsz',appKey:'rijpKLUzykFXX0DGsbzHezk5',notify:false,verify:false,avatar:'robohash',placeholder:'有不当之处，求大佬指正~',visitor:false});</script></div></div></div><footer><div class=container><div class=row><div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1"><ul class="list-inline text-center footer-links"><li><a href=mailto:18666269733@163.com title="Email me"><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a href=https://github.com/SourceKim title=GitHub><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a href title=RSS><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-rss fa-stack-1x fa-inverse"></i></span></a></li></ul><p class="credits copyright text-muted"><a href=https://uiimage.com>Kim</a>
+&nbsp;&bull;&nbsp;&copy;
+2020
+&nbsp;&bull;&nbsp;
+<a href=https://www.uiimage.com/>Kim's Blog</a></p><p class="credits theme-by text-muted">由 <a href=https://gohugo.io>Hugo v0.69.2</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href=https://github.com/halogenica/beautifulhugo>Beautiful Hugo</a> 移植自 <a href=https://deanattali.com/beautiful-jekyll/>Beautiful Jekyll</a></p></div></div></div></footer><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js integrity=sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js integrity=sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe crossorigin=anonymous></script><script src=https://code.jquery.com/jquery-1.12.4.min.js integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin=anonymous></script><script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js integrity=sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa crossorigin=anonymous></script><script src=https://www.uiimage.com/js/main.js></script><script>renderMathInElement(document.body);</script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js integrity=sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js integrity=sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q crossorigin=anonymous></script><script src=https://www.uiimage.com/js/load-photoswipe.js></script></body></html>
