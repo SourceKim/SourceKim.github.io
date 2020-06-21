@@ -188,6 +188,17 @@
 &lt;li>
 &lt;p>滑动窗口协议：通过该协议来实现 TCP 的拥塞控制。&lt;/p>
 &lt;/li>
+&lt;/ul></description></item><item><title>iOS 硬编码硬解码 1 - 介绍</title><link>https://www.uiimage.com/post/blog/videotoolbox/ios-videotoolbox-codec-1/</link><pubDate>Wed, 19 Jun 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/videotoolbox/ios-videotoolbox-codec-1/</guid><description>&lt;p>包含如下内容&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>编解码基础知识简介（一些名词术语的解释）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>VideoToolbox 介绍（编码 &amp;amp; 解码 api）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>H264 的数据格式&lt;/p>
+&lt;/li>
 &lt;/ul></description></item><item><title>iOS 中 weak 详细介绍</title><link>https://www.uiimage.com/post/blog/ios/weak/</link><pubDate>Wed, 08 May 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/ios/weak/</guid><description>&lt;p>&lt;code>Runtime&lt;/code> 为我们维护了一张&lt;strong>全局&lt;/strong>的 &lt;code>weak 表（弱引用表）&lt;/code>，是一张 &lt;code>哈希表&lt;/code>，该表的 &lt;code>key&lt;/code> 是要弱引用的对象的地址， &lt;code>value&lt;/code> 是所有指向该对象的 &lt;code>weak&lt;/code> 指针，是一个数组。&lt;/p></description></item><item><title>OpenGL ES in iOS - 2. 画一个三角形</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-2-draw-a-triangle/</link><pubDate>Mon, 29 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-2-draw-a-triangle/</guid><description>&lt;p>本篇主要目的是 &lt;strong>使用 OpenGL ES 画一个三角形&lt;/strong>，包含 直接上传顶点、使用 VAO、VBO、EBO 他们的组合渲染方式。&lt;/p>
 &lt;p>建议配合 &lt;a href="https://github.com/SourceKim/OpenGLES-iOS">Demo 工程&lt;/a> 食用。&lt;/p></description></item><item><title>HTTP 三次握手 &amp; 四次挥手 详解</title><link>https://www.uiimage.com/post/blog/network/http-hand-shaking/</link><pubDate>Tue, 23 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/network/http-hand-shaking/</guid><description>&lt;p>HTTP 三次握手 &amp;amp; 四次挥手&lt;/p></description></item><item><title>HTTP2.0</title><link>https://www.uiimage.com/post/blog/network/http2.0/</link><pubDate>Sat, 20 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/network/http2.0/</guid><description>&lt;p>HTTP2.0&lt;/p></description></item><item><title>OpenGL ES in iOS - 1. 基础概念</title><link>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-base-concept/</link><pubDate>Thu, 18 Apr 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/opengl-es/opengl-es-1-base-concept/</guid><description>&lt;p>OpenGL ES 全称 OpenGL for Embedded Systems，是专门为嵌入式设备改良的 开源图形库&lt;/p>
 &lt;p>OpenGL ES 是 OpenGL 的简化版本，简化了一些功能。&lt;/p>

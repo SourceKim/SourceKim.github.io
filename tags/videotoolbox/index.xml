@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>VideoToolbox on Kim's Blog</title><link>https://www.uiimage.com/tags/videotoolbox/</link><description>Recent content in VideoToolbox on Kim's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>18666269733@163.com (Kim)</managingEditor><webMaster>18666269733@163.com (Kim)</webMaster><lastBuildDate>Wed, 19 Jun 2019 23:00:00 +0800</lastBuildDate><atom:link href="https://www.uiimage.com/tags/videotoolbox/index.xml" rel="self" type="application/rss+xml"/><item><title>iOS 硬编码硬解码 1 - 介绍</title><link>https://www.uiimage.com/post/blog/videotoolbox/ios-videotoolbox-codec-1/</link><pubDate>Wed, 19 Jun 2019 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/videotoolbox/ios-videotoolbox-codec-1/</guid><description>&lt;p>包含如下内容&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>编解码基础知识简介（一些名词术语的解释）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>VideoToolbox 介绍（编码 &amp;amp; 解码 api）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>H264 的数据格式&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>
