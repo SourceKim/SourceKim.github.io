@@ -3,7 +3,16 @@
 &lt;span style="color:#ae81ff">5&lt;/span>,
 &lt;span style="color:#ae81ff">6&lt;/span>
 )} &lt;span style="color:#66d9ef">for&lt;/span> key key&lt;span style="color:#960050;background-color:#1e0010">&amp;#39;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Metal 编译错误 CompileMetalFile XXX, fatal error: 'XXX.h' file not found</title><link>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</link><pubDate>Sun, 07 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</guid><description>&lt;p>在编译 Metal 文件的时候出现头文件找不到的问题。&lt;/p>
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>UIButton 图片拉伸显示</title><link>https://www.uiimage.com/post/blog/developing-normal-issues/uibutton-stretch-displaying/</link><pubDate>Tue, 09 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/developing-normal-issues/uibutton-stretch-displaying/</guid><description>&lt;p>日常开发中，有时候的需求是 &lt;strong>让按钮的图片拉伸填满按钮&lt;/strong>，有两种实现方式：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>1、修改 UIButton 内容的拉伸方式&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>2、设置 ResizableImage&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>测试代码可以参考我的 &lt;a href="https://github.com/SourceKim/iOSExperiment">仓库&lt;/a> 的 &lt;code>UIButtonTileImage&lt;/code> 工程。&lt;/p></description></item><item><title>Metal 编译错误 CompileMetalFile XXX, fatal error: 'XXX.h' file not found</title><link>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</link><pubDate>Sun, 07 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/developing-normal-issues/metal-compile-error-xxx.h-not-found/</guid><description>&lt;p>在编译 Metal 文件的时候出现头文件找不到的问题。&lt;/p>
 &lt;p>报错信息：&lt;/p>
 &lt;pre>&lt;code>CompileMetalFile XXX, fatal error: 'XXX.h' file not found
 &lt;/code>&lt;/pre></description></item><item><title>xcodebuild Found an unexpected Mach-O header code 打包失败问题</title><link>https://www.uiimage.com/post/blog/developing-normal-issues/xcodebuild-found-an-unexpected-mach-o-header-code-archive-error/</link><pubDate>Mon, 01 Jun 2020 23:00:00 +0800</pubDate><author>18666269733@163.com (Kim)</author><guid>https://www.uiimage.com/post/blog/developing-normal-issues/xcodebuild-found-an-unexpected-mach-o-header-code-archive-error/</guid><description>在使用 xcodebuild -exportArchive 将 xcarchive 导出 ipa 的时候，出现报错：
