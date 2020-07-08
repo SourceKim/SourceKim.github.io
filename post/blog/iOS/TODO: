@@ -51,3 +51,39 @@ MLeaksFinder是微信阅读团队为了简化内存泄漏排查工作，推出�
 实现：为基类 NSObject 添加一个方法 -willDealloc 方法，利用weak指针指向自己，并在一小段时间(3秒)后，再次检测该weak指针是否有效，有效则内存泄漏。
 
 集成：通过Cocoapods引入或直接把代码拖进项目，很方便。发生内存泄漏，会弹出警告框，提示发生内存泄漏的位置。
+
+1. https://github.com/music4kid/PMainThreadWatcher
+
+主线程检测
+
+2. 单目三维重建
+
+3. AVPlayer 边下边播放 （缓存）
+
+    resource loader
+
+    注意 schema
+
+4. Metal row-major / column-major
+
+5. WKWebview
+
+6. 性能优化
+
+7. 预乘
+
+8. scrollview 缩放
+
+http://www.thegooch.org/Publications/PDFs/ColorTransfer.pdf
+
+https://juejin.im/post/5cfb84e66fb9a07efd46ff77
+
+https://www.mobilefish.com/services/record_mouse_coordinates/record_mouse_coordinates.php
+
+https://www.zhihu.com/question/20293077
+
+https://blog.csdn.net/orange_man/article/details/38490429
+
+https://github.com/zergtant/pytorch-handbook
+
+https://blog.csdn.net/grafx/article/details/59108946
